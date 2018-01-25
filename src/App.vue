@@ -21,7 +21,6 @@
     },
     methods:{
       checkLogin(){
-        console.log('here')
         if(!this.getCookie('mySession'))
           this.$router.push('/login')
         else

@@ -16,23 +16,25 @@
                     label="User Name"
                     id="username"
                     v-model="username"
-                    :rules="usernameRules"
                     required
                   ></v-text-field>
+                    <!--:rules="usernameRules"-->
                   <v-text-field
                     prepend-icon="lock"
                     name="ipassword"
                     label="Password"
                     id="password"
                     v-model="password"
-                    :rules="passwordRules"
                     required
                   ></v-text-field>
                 </v-form>
               </v-card-text>
               <v-card-actions>
                 <v-spacer></v-spacer>
-                <v-btn dark color="primary" dark @click.stop="">Login</v-btn>
+                <!--
+                <v-btn dark color="primary" dark @click.stop="$this.store.commit('submitLogin')">Login</v-btn>
+                -->
+                <v-btn dark color="primary" dark @click.stop="sendAuth()">Login</v-btn>
                 <v-spacer></v-spacer>
               </v-card-actions>
               <v-card-text>
@@ -44,3 +46,25 @@
     </v-container>
   </v-content>
 </template>
+
+<script>
+  export default {
+    name: 'Login',
+    data() {
+      return {
+        username: '',
+        password: ''
+      }
+    },
+    methods: {
+      sendAuth(){
+        this.$store.dispatch('submitLogin')
+        //if($store.getters.loadLoginState(state))
+        //  this.$router.push('/user');
+        console.log(this.$store.state.loginState);
+      }
+    },
+    computed: {
+    }
+  }
+</script>
