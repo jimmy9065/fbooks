@@ -8,11 +8,14 @@ export const store = new Vuex.Store({
     loginState: false
   },
   mutations: {
+    setLoginState(state){
+      state.loginState = true;
+    }
   },
   actions: {
-      submitLogin(state, username, password){
+      submitLogin(commit, {username, password}){
         if(username == 'haha')
-          state.loginState = true;
+          store.commit('setLoginState');
       }
   },
   getters: {

@@ -53,18 +53,25 @@
     data() {
       return {
         username: '',
-        password: ''
+        password: '',
+        loginState: false
       }
     },
     methods: {
       sendAuth(){
-        this.$store.dispatch('submitLogin')
-        //if($store.getters.loadLoginState(state))
-        //  this.$router.push('/user');
+        this.$store.dispatch('submitLogin', {username:username.value, password:password.value})
         console.log(this.$store.state.loginState);
       }
     },
     computed: {
+      isLoggedIn() {
+        let state = this.$store.getters.loadLoginState;
+        console.log("here");
+        return this.$store.getters.loadLoginState;
+      }
+    },
+    watch: {
+
     }
   }
 </script>
