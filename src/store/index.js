@@ -1,26 +1,32 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 
-import router from '../router'
+import {router} from '../router'
 
 Vue.use(Vuex)
 
 export const store = new Vuex.Store({
   state: {
-    loginState: false
+    loginState: false,
+    routerUpdated: false
   },
   mutations: {
     updateLoginState(state) {
       state.loginState = true;
-      this.$router.go('/user')
-      //state.route.path = '/user';
+    },
+    updateRouter(state) {
+      state.routerUpdated = true;
     }
   },
   actions: {
       submitLogin({commit}, {username, password}){
         if(username == 'haha'){
           commit('updateLoginState');
-          console.log("updated the loginState");
+          //router.push('/user')
+          //state.router.path = '/user';
+          //this.$router.push('/user');
+          router.push('/user')
+          commit('updateRouter');
         }
       }
   },
