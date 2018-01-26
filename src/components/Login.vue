@@ -58,13 +58,18 @@
     },
     methods: {
       sendAuth(){
-        this.$store.dispatch('submitLogin')
-        //if($store.getters.loadLoginState(state))
-        //  this.$router.push('/user');
-        console.log(this.$store.state.loginState);
+        this.$store.dispatch('submitLogin',
+          {username: username.value, password: password.value})
       }
     },
+    watch: {
+      
+    },
     computed: {
+      isLoggedIn : function(){
+        console.log("updated here")
+        return this.$store.getters.loadLoginState
+      }
     }
   }
 </script>
