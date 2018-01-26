@@ -59,19 +59,18 @@
     },
     methods: {
       sendAuth(){
-        this.$store.dispatch('submitLogin', {username:username.value, password:password.value})
-        console.log(this.$store.state.loginState);
-      }
-    },
-    computed: {
-      isLoggedIn() {
-        let state = this.$store.getters.loadLoginState;
-        console.log("here");
-        return this.$store.getters.loadLoginState;
+        this.$store.dispatch('submitLogin',
+          {username: username.value, password: password.value})
       }
     },
     watch: {
-
+      
+    },
+    computed: {
+      isLoggedIn : function(){
+        console.log("updated here")
+        return this.$store.getters.loadLoginState
+      }
     }
   }
 </script>

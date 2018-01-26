@@ -1,15 +1,14 @@
 <template>
   <v-app>
-    <main>
-      <router-view></router-view>
-    </main>
+    <router-view></router-view>
   </v-app>
 </template>
 
 <script>
   export default {
     created(){
-      this.checkLogin()
+      //this.checkLogin()
+      console.log("starting")
     },
     data () {
       return {
