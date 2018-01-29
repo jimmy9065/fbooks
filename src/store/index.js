@@ -9,8 +9,8 @@ export const store = new Vuex.Store({
     username : ''
   },
   mutations: {
-    updateLoginState(state) {
-      state.loginState = true;
+    updateLoginState(state, isLogin) {
+      state.loginState = isLogin;
     },
     updateRouter(state) {
       state.routerUpdated = true;
@@ -24,23 +24,31 @@ export const store = new Vuex.Store({
         console.log('if pass is right:' + pass)
         return new Promise((resolve, reject) => {
           if(pass){
-            commit('updateLoginState');
+            commit('updateLoginState', true);
             commit('updateUsername', username);
             resolve();
           }
           else
             reject();
         });
+      },
+      submitLogout({commit}) {
+        return new Promise((resolve, reject) => {
+          console.log('submit logout')
+          commit('updateLoginState', false);
+          commit('updateUsername', '');
+          resolve();
+        })
       }
-  },
-  getters: {
-    loadLoginState(state) {
-      console.log("updated login state");
-      return state.loginState;
     },
-    getUsername(state) {
-      console.log("updated username");
-      return state.username;
+    getters: {
+      loadLoginState(state) {
+        console.log("updated login state");
+        return state.loginState;
+      },
+      getUsername(state) {
+        console.log("updated username");
+        return state.username;
+      }
     }
-  }
 })

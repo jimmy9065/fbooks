@@ -28,11 +28,21 @@
               let user = /([a-zA-Z0-9]+)@/.exec(cookie)[1]
               this.$store.dispatch('submitLogin', {pass: true, username: user})
               console.log('username in cookid: ' + user)
+              let currentPath = this.$store.state.route.path
+              if(currentPath == '/' || currentPath == '/login')
+                this.$router.push('/login')
               return;
             }
+            else{
+              this.$cookie.delete('BOOKSUID');
+            }
           }
-          else
-            this.$router.push('/login')
+          this.$router.push('/login')
+        }
+        else{
+          let currentPath = this.$store.state.route.path
+          if(currentPath == '/' || currentPath == '/login')
+            this.$router.push('/main')
         }
       },
       getCookie(){
