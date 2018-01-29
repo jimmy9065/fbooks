@@ -21,17 +21,19 @@
     },
     methods:{
       checkLogin(){
-        if(this.$store.getters.loadLoginState){
-          this.$router.push('/main');
-          return;
-        }
-        else{
+        if(!this.$store.getters.loadLoginState){
           if(this.$cookie.get('BOOKSUID')){
-            this.$router.push('/main')
-            return;
+            let cookie = this.$cookie.get('BOOKSUID');
+            if(/[a-zA-Z0-9]+@[a-zA-Z0-9\+\/]+/i.test(cookie)){ 
+              let user = /([a-zA-Z0-9]+)@/.exec(cookie)[1]
+              this.$store.dispatch('submitLogin', {pass: true, username: user})
+              console.log('username in cookid: ' + user)
+              return;
+            }
           }
+          else
+            this.$router.push('/login')
         }
-        this.$router.push('/login')
       },
       getCookie(){
         var cookieName = 'fbooks'
