@@ -1,14 +1,12 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 
-import {router} from '../router'
-
 Vue.use(Vuex)
 
 export const store = new Vuex.Store({
   state: {
     loginState: false,
-    routerUpdated: false
+    username : ''
   },
   mutations: {
     updateLoginState(state) {
@@ -16,24 +14,33 @@ export const store = new Vuex.Store({
     },
     updateRouter(state) {
       state.routerUpdated = true;
+    },
+    updateUsername(state, username) {
+      state.username = username;
     }
   },
   actions: {
-      submitLogin({commit}, {username, password}){
-        if(username == 'haha'){
-          commit('updateLoginState');
-          //router.push('/user')
-          //state.router.path = '/user';
-          //this.$router.push('/user');
-          router.push('/user')
-          commit('updateRouter');
-        }
+      submitLogin({commit}, {pass, username}){
+        console.log('if pass is right:' + pass)
+        return new Promise((resolve, reject) => {
+          if(pass){
+            commit('updateLoginState');
+            commit('updateUsername', username);
+            resolve();
+          }
+          else
+            reject();
+        });
       }
   },
   getters: {
     loadLoginState(state) {
-      console.log("update in getters");
+      console.log("updated login state");
       return state.loginState;
+    },
+    getUsername(state) {
+      console.log("updated username");
+      return state.username;
     }
   }
 })

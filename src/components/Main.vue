@@ -1,3 +1,18 @@
-<template id="main">
-  <h1>This is Main</h1>
+<template id="user">
+  <v-content>
+  <h3>This is User</h3>
+
+  </v-content>
 </template>
+
+<script>
+  export default {
+    name: 'User',
+    data() {
+      return {
+      }
+    },
+    methods: {
+    }
+  }
+</script>

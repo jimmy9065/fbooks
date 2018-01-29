@@ -11,17 +11,31 @@ export default new Router({
     {
       path: '/',
       name: 'Main',
-      component: Main
+      component: Main,
+      meta: {
+        title: 'Fbooks: Login'
+      }
     },
     {
       path: '/login',
       name: 'Login',
-      component: Login
+      component: Login,
+      meta: {
+        title: 'Fbooks: Login'
+      }
     },
     {
       path: '/user',
       name: 'User',
-      component: User
+      component: User,
+      meta: {
+        title: 'Fbooks: Login'
+      }
+      children: [
+        {
+          path:''
+        }
+      ]
     }
   ],
   mode: 'history'

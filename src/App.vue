@@ -7,7 +7,8 @@
 <script>
   export default {
     created(){
-      //this.checkLogin()
+      this.checkLogin()
+      document.title = 'Roommates Finance Book'
       console.log("starting")
     },
     data () {
@@ -20,10 +21,17 @@
     },
     methods:{
       checkLogin(){
-        if(!this.getCookie('mySession'))
-          this.$router.push('/login')
-        else
-          this.$router.push('/user')
+        if(this.$store.getters.loadLoginState){
+          this.$router.push('/user');
+          return;
+        }
+        else{
+          if(this.$cookie.get('BOOKSUID')){
+            this.$router.push('/user')
+            return;
+          }
+        }
+        this.$router.push('/login')
       },
       getCookie(){
         var cookieName = 'fbooks'
