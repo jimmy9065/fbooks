@@ -1,7 +1,6 @@
 <template id="user">
   <v-content>
   <h3>This is User</h3>
-
   </v-content>
 </template>
 

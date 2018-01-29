@@ -85,7 +85,7 @@
             .then(()=>{
               console.log('get here');
               this.$cookie.set('BOOKSUID', response.body.cookie, 1);
-              this.$router.push({path:'/user'});
+              this.$router.push({path:'/main'});
             })
             .catch(() => {
               console.log('wrong password: ' + this.password);

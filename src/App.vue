@@ -22,12 +22,12 @@
     methods:{
       checkLogin(){
         if(this.$store.getters.loadLoginState){
-          this.$router.push('/user');
+          this.$router.push('/main');
           return;
         }
         else{
           if(this.$cookie.get('BOOKSUID')){
-            this.$router.push('/user')
+            this.$router.push('/main')
             return;
           }
         }

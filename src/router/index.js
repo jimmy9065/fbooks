@@ -2,7 +2,7 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import Main from '@/components/Main'
 import Login from '@/components/Login'
-import User from '@/components/User'
+import Index from '@/components/Index'
 
 Vue.use(Router)
 
@@ -10,8 +10,8 @@ export default new Router({
   routes: [
     {
       path: '/',
-      name: 'Main',
-      component: Main,
+      name: 'Index',
+      component: Index,
       meta: {
         title: 'Fbooks: Login'
       }
@@ -25,16 +25,13 @@ export default new Router({
       }
     },
     {
-      path: '/user',
-      name: 'User',
-      component: User,
+      path: '/main',
+      name: 'Main',
+      component: Main,
       meta: {
         title: 'Fbooks: Login'
-      }
+      },
       children: [
-        {
-          path:''
-        }
       ]
     }
   ],
