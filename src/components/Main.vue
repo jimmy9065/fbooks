@@ -27,35 +27,43 @@
       </v-list>
     </v-navigation-drawer>
 
-    <v-toolbar class="hidden-xs-only" fixed>
-      <v-toolbar-title>
-        <h3>{{banner}}</h3>
-      </v-toolbar-title>
+    <v-container fluid extend>
+      <v-layout >
+        <v-flex >
+          <v-toolbar class="hidden-sm-and-down" extend>
+            <v-toolbar-title>
+              <h3>{{banner}}</h3>
+            </v-toolbar-title>
+            <v-spacer></v-spacer>
+            <v-toolbar-items
+              v-for="item in menuItems" 
+              :key="item.title"
+              >
+              <v-btn :to="item.link" flat @click.native="">
+                <v-icon left>{{item.icon}}</v-icon>
+                {{item.title}}
+              </v-btn>
+            </v-toolbar-items>
+            <v-spacer></v-spacer>
+            <v-toolbar-items >
+              <v-btn flat @click="logout">
+                <v-icon left>supervisor_account</v-icon>
+                logout
+              </v-btn>
+            </v-toolbar-items>
+          </v-toolbar>
+        </v-flex>
+      </v-layout >
 
-      <v-spacer></v-spacer>
-
-      <v-toolbar-items
-        v-for="item in menuItems" 
-        :key="item.title"
-        router>
-        <v-btn :to="item.link" flat @click="">
-          <v-icon left>{{item.icon}}</v-icon>
-          {{item.title}}
-        </v-btn>
-      </v-toolbar-items>
-
-      <v-spacer></v-spacer>
-
-      <v-toolbar-items >
-        <v-btn flat @click="logout">
-          <v-icon left>supervisor_account</v-icon>
-          logout
-        </v-btn>
-      </v-toolbar-items>
-    </v-toolbar>
-
-    <router-view></router-view>
+      <v-layout >
+        <v-flex>
+          <router-view></router-view>
+        </v-flex>
+      </v-layout>
   </v-container>
+
+  </v-container>
+  
 </template>
 
 <script>
