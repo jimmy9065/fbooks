@@ -37,7 +37,7 @@
         v-for="item in menuItems" 
         :key="item.title"
         >
-        <v-btn :to="item.link" flat @click.native="">
+        <v-btn :to="item.link" flat exact @click.native="">
           <v-icon left>{{item.icon}}</v-icon>
           {{item.title}}
         </v-btn>
@@ -50,7 +50,6 @@
         </v-btn>
       </v-toolbar-items>
     </v-toolbar>
-
     <router-view></router-view>
   </v-app>
 </template>
@@ -64,8 +63,6 @@
     },
     data () {
       return {
-        loginDialog: true,
-        sideNav: false,
         menuItems: [
           {icon: 'account_balance', title:'Quick view', link: '/main'},
           {icon: 'receipt', title:' History ', link: '/main/history'},

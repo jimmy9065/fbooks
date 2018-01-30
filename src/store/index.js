@@ -6,7 +6,8 @@ Vue.use(Vuex)
 export const store = new Vuex.Store({
   state: {
     loginState: false,
-    username : ''
+    username : '',
+    dataLoadState: false, // true for refreshing
   },
   mutations: {
     updateLoginState(state, isLogin) {
@@ -17,7 +18,10 @@ export const store = new Vuex.Store({
     },
     updateUsername(state, username) {
       state.username = username;
-    }
+    },
+    updateRefreshState(state, isRefreshing) {
+      state.dataLoadState = isRefreshing;
+    },
   },
   actions: {
       submitLogin({commit}, {pass, username}){
@@ -39,7 +43,13 @@ export const store = new Vuex.Store({
           commit('updateUsername', '');
           resolve();
         })
-      }
+      },
+      aUpdateDT({commit}) {
+        commit('updateRefreshState', true);
+      },
+      aFinishDT({commit}) {
+        commit('updateRefreshState', false);
+      },
     },
     getters: {
       loadLoginState(state) {
@@ -49,6 +59,10 @@ export const store = new Vuex.Store({
       getUsername(state) {
         console.log("updated username");
         return state.username;
+      },
+      isLoaded(state) {
+        console.log("query load progress");
+        return !state.dataLoadState;
       }
     }
 })
