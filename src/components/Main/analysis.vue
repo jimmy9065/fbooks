@@ -17,7 +17,7 @@
           </v-card-title>
           <v-card-media height="250px">
             <v-container>
-
+              <vue-chart type="bar" :data="chartData"></vue-chart>
             </v-container>
           </v-card-media>
           <v-card-text>
@@ -61,6 +61,19 @@
     },
     data () {
       return {
+        chartData: {
+          label: ['item1','item2','item3',],
+          datasets: [
+            {
+              label: 'Component 1',
+              data:[10,20,30]
+            },
+            {
+              label: 'Component 2',
+              data:[40,20,30]
+            },
+          ]
+        }
       }
     },
     methods: {
