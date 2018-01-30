@@ -8,6 +8,7 @@ export const store = new Vuex.Store({
     loginState: false,
     username : '',
     dataLoadState: false, // true for refreshing
+    hDataLoadState: false, // true for refreshing
   },
   mutations: {
     updateLoginState(state, isLogin) {
@@ -21,6 +22,9 @@ export const store = new Vuex.Store({
     },
     updateRefreshState(state, isRefreshing) {
       state.dataLoadState = isRefreshing;
+    },
+    updateRefreshHState(state, isRefreshing) {
+      state.hDataLoadState = isRefreshing;
     },
   },
   actions: {
@@ -50,6 +54,12 @@ export const store = new Vuex.Store({
       aFinishDT({commit}) {
         commit('updateRefreshState', false);
       },
+      aUpdateHDT({commit}) {
+        commit('updateRefreshHState', true);
+      },
+      aFinishHDT({commit}) {
+        commit('updateRefreshHState', false);
+      },
     },
     getters: {
       loadLoginState(state) {
@@ -63,6 +73,9 @@ export const store = new Vuex.Store({
       isLoaded(state) {
         console.log("query load progress");
         return !state.dataLoadState;
-      }
+      },
+      isHLoaded(state) {
+        return !state.hDataLoadState;
+      },
     }
 })

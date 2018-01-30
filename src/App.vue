@@ -1,6 +1,7 @@
 <template>
   <v-app>
-    <v-navigation-drawer class = "hidden-md-and-up" fixed temporary 
+    <v-navigation-drawer class = "hidden-md-and-up"
+      fixed temporary v-model="swipe"
       v-if="this.$store.getters.loadLoginState">
       <v-toolbar flat>
         <v-list>
@@ -25,6 +26,7 @@
           <v-list-tile-content>{{ item.title }}</v-list-tile-content>
         </v-list-tile>
       </v-list>
+      {{ swipeDirection }}
     </v-navigation-drawer>
 
     <v-toolbar class="hidden-sm-and-down" extend 
@@ -63,6 +65,8 @@
     },
     data () {
       return {
+        swipeDirection: null,
+        swipe: false,
         menuItems: [
           {icon: 'account_balance', title:'Quick view', link: '/main'},
           {icon: 'receipt', title:' History ', link: '/main/history'},
@@ -116,7 +120,7 @@
           this.$cookie.delete('BOOKSUID');
           this.$router.push('/login');
         })
-      }
+      },
     },
     computed: {
       banner: function(){
@@ -124,7 +128,15 @@
       },
       isShow: function() {
         return this.$store.getters.loadLoginState;
-      }
+      },
+      swipe: function() {
+        if(swipeDirection ==right)
+         return true;
+        if(swipeDirection == left)
+         return false;
+        else
+          return swipe;
+      },
     }
   }
 </script>
