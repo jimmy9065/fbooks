@@ -1,6 +1,8 @@
 <template>
   <v-app>
+  <main fixed extend width>
     <router-view></router-view>
+  </main>
   </v-app>
 </template>
 
