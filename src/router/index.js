@@ -1,9 +1,8 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import Main from '@/components/Main'
 import Login from '@/components/Login'
 import Empty from '@/components/Index'
-import index from '@/components/Main/index'
+import main from '@/components/Main/index'
 import history from '@/components/Main/history'
 import analysis from '@/components/Main/analysis'
 
@@ -24,13 +23,18 @@ export default new Router({
     {
       path: '/main',
       name: 'Main',
-      component: Main,
-      children: [
-        {path:'', component: index},
-        {path:'analysis', component: analysis},
-        {path:'history', component: history}
-      ]
-    }
+      component: main,
+    },
+    {
+      path: '/main/history',
+      name: 'History',
+      component: history,
+    },
+    {
+      path: '/main/analysis',
+      name: 'Analysis',
+      component: analysis,
+    },
   ],
   mode: 'hash'
 })
