@@ -65,8 +65,8 @@
     },
     data () {
       return {
-        swipeDirection: null,
-        swipe: false,
+        swipeDirection: 'left',
+        //swipe: false,
         menuItems: [
           {icon: 'account_balance', title:'Quick view', link: '/main'},
           {icon: 'receipt', title:' History ', link: '/main/history'},
@@ -130,9 +130,9 @@
         return this.$store.getters.loadLoginState;
       },
       swipe: function() {
-        if(swipeDirection ==right)
+        if(this.swipeDirection =='right')
          return true;
-        if(swipeDirection == left)
+        if(this.swipeDirection == 'left')
          return false;
         else
           return swipe;

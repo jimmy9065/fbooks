@@ -79,11 +79,11 @@
     methods: {
      updateDataTable() {
         console.log("update HdataTable")
-        this.$store.dispatch("aUpdateHDT");
+        //this.$store.dispatch("aUpdateHDT");
 
         let vm = this;
         setTimeout(function(){
-          vm.$store.dispatch("aFinishHDT");
+          //vm.$store.dispatch("aFinishHDT");
         }, 1500);
       },
     },
