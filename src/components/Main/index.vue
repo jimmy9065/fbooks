@@ -63,11 +63,11 @@
 
       <v-dialog v-model="dialog" persistent max-width="350px">
         <v-card>
-          <v-card-title class="pb-0 pt-4">
+          <v-card-title class="pb-0 pt-3">
             <h2>{{dialogTitle}}</h2>
           </v-card-title>
-          <v-card-text>
-            <v-container class="pt-0 pb-0" v-if="!isPicking">
+          <v-card-text v-if="!isPicking">
+            <v-container v-if="!isPicking" class="pt-0 pb-0" >
               <v-layout wrap align-center>
                 <v-flex xs12 sm6 md10>
                   <v-text-field label="Title" v-model="submitTitle" prepend-icon="list"></v-text-field>
@@ -87,24 +87,36 @@
                 </v-flex>
               </v-layout>
             </v-container>
-            <v-container v-else class='pa-0'>
-              <!--
-              <v-date-picker v-model="submitDate" @input.native="formatDate($event)" no-title scrollable actions>
-              -->
-              <v-date-picker v-model="submitDate" v-on:input="formatDate($event, $emitter)" no-title scrollable>
-                <v-btn @click="isPicking = false">
-                  <span>Save</span>
-                </v-btn>
-                <v-btn @click="isPicking = false">
-                  <span>Cancel</span>
-                </v-btn>
-              </v-date-picker>
-            </v-container>
           </v-card-text>
-          <v-card-actions class='pt-0'>
-            <v-spacer></v-spacer>
-            <v-btn flat color="primary" @click="dialog=false">Cancel</v-btn>
-            <v-btn flat color="primary" @click="submitForm">Submit</v-btn>
+          <v-card-text v-else>
+            <v-date-picker v-model="choosingDate" v-on:input="chosenDate = formatDate($event)" no-title scrollable>
+              <v-btn @click="isPicking = false">
+                <span>Save</span>
+              </v-btn>
+              <v-btn @click="isPicking = false">
+                <span>Cancel</span>
+              </v-btn>
+            </v-date-picker>
+          </v-card-text>
+          <v-card-actions class='pa-0 pb-3'>
+            <v-container class='pa-0' v-if="!isPicking">
+              <v-layout >
+                <v-spacer></v-spacer>
+                <v-btn flat color="primary" 
+                  @click="dialog=false">Cancel</v-btn>
+                <v-btn flat color="primary" 
+                  @click="submitForm">Submit</v-btn>
+              </v-layout>
+            </v-container>
+            <v-container class='pa-0' v-else>
+              <v-layout >
+                <v-spacer></v-spacer>
+                <v-btn flat color="primary" 
+                  @click="isPicking=false">Cancel</v-btn>
+                <v-btn flat color="primary" 
+                  @click="submitDate=chosenDate;isPicking=false">Save</v-btn>
+              </v-layout>
+            </v-container>
           </v-card-actions>
         </v-card>
       </v-dialog>
@@ -125,7 +137,8 @@
         dialog: false,
         dialogTitle: '',
         submitDate: '',
-        tempDate: null,
+        choosingDate: '',
+        chosenDate: '',
         isPicking: false,
         submitTitle: '',
         submitAmount: '',
@@ -164,10 +177,9 @@
         //ignore share first, defualt to true
         this.dialog = false;
       },
-      formatDate (date, second) {
+      formatDate (date) {
         console.log('instant happen')
         console.log(date)
-        console.log(second)
         if (!date) {
           return null;
         }
@@ -191,7 +203,6 @@
             vm.items = [];
 
             for(let idx in response.body){
-              console.log(response.body[idx]);
               response.body[idx].date = response.body[idx].date.match(/([0-9\-]+)T/)[1]
               this.items.push(response.body[idx]);
             }
