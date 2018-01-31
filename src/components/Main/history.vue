@@ -10,6 +10,7 @@
             <v-data-table
               v-bind:headers="headers"
               v-bind:items="items"
+              v-bind:pagination.sync="pagination"
               class="elevation-1">
               <template slot="items" slot-scope="props">
                 <td class="text-xs-center">{{ props.item.date }}</td>
@@ -23,6 +24,21 @@
                 </v-alert>
               </template>
             </v-data-table>
+              <v-footer class="pa-4" color="gray">
+                <v-tooltip bottom>
+                  <v-btn 
+                    icon 
+                    slot="activator" 
+                    @click="this.updateDataTable" 
+                    color="blue"
+                    v-bind:loading="!HdataLoaded"
+                    dark
+                    >
+                    <v-icon>cached</v-icon>
+                  </v-btn>
+                  <span>Refresh</span>
+                </v-tooltip>
+              </v-footer>
           </v-container>
         </v-card>
       </v-flex>
@@ -45,7 +61,12 @@
           {align: 'center', text: 'Amount', value: 'amount'},
         ],
         items : [
+          {}
         ],
+        pagination: {
+          sortBy: 'date',
+          descending: true,
+        },
       }
     },
     methods: {
@@ -61,6 +82,7 @@
             console.log('get HData')
             vm.$store.dispatch("aFinishHDT");
 
+            this.items = []
             for(let idx in response.body){
               console.log(response.body[idx]);
               this.items.push(response.body[idx]);

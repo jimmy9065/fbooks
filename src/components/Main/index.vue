@@ -14,7 +14,7 @@
               class="elevation-1">
               <template slot="items" slot-scope="props">
                 <tr @click="showEditMenu">
-                <td class="text-xs-center">{{ props.item.dates }}</td>
+                <td class="text-xs-center">{{ props.item.date }}</td>
                 <td class="text-xs-center">{{ props.item.category }}</td>
                 <td class="text-xs-center">{{ props.item.owner }}</td>
                 <td class="text-xs-center">{{ (props.item.amount/100).toFixed(2) }}</td>
@@ -26,8 +26,8 @@
                 </v-alert>
               </template>
             </v-data-table>
-              <v-footer class="pa-3" color="gray">
-                <v-tooltip bottom>
+              <v-footer class="pa-4" color="gray">
+                <v-tooltip bottom class="pa-0">
                   <v-btn 
                     icon 
                     slot="activator" 
@@ -35,32 +35,27 @@
                     color="blue"
                     v-bind:loading="!dataLoaded"
                     dark
-                    id="refresh"
                     >
                     <v-icon>cached</v-icon>
                   </v-btn>
                   <span>Refresh</span>
                 </v-tooltip>
-                <v-container class="pa-1">
-                  <v-layout row>
-                    <div class="pa-2">
-                      <h3>Total Due: {{dueAmount}}</h3>
-                    </div>
-                    <v-btn
-                      absolute
-                      v-bind:disabled="!this.dataLoaded"
-                      dark
-                      fab
-                      bottom
-                      right
-                      large
-                      color="pink"
-                      @click="showAddMenu"
-                    >
-                      <v-icon>add</v-icon>
-                    </v-btn>
-                  </v-layout>
-                </v-container>
+                <div>
+                  <h3>Total Due: {{dueAmount}}</h3>
+                </div>
+                <v-btn
+                  absolute
+                  v-bind:disabled="!this.dataLoaded"
+                  dark
+                  fab
+                  bottom
+                  right
+                  large
+                  color="pink"
+                  @click="showAddMenu"
+                >
+                  <v-icon>add</v-icon>
+                </v-btn>
               </v-footer>
             </v-container>
         </v-card>
@@ -87,12 +82,22 @@
                     v-model="submitDate"
                     prepend-icon="event"
                     @click="pickingTime"
+                    readonly
                   ></v-text-field>
                 </v-flex>
               </v-layout>
             </v-container>
             <v-container v-else class='pa-0'>
-              <v-date-picker v-model="tempDate" @input="submitDate = formatDate($event)" no-title scrollable actions>
+              <!--
+              <v-date-picker v-model="submitDate" @input.native="formatDate($event)" no-title scrollable actions>
+              -->
+              <v-date-picker v-model="submitDate" v-on:input="formatDate($event, $emitter)" no-title scrollable>
+                <v-btn @click="isPicking = false">
+                  <span>Save</span>
+                </v-btn>
+                <v-btn @click="isPicking = false">
+                  <span>Cancel</span>
+                </v-btn>
               </v-date-picker>
             </v-container>
           </v-card-text>
@@ -125,20 +130,13 @@
         submitTitle: '',
         submitAmount: '',
         headers: [
-          {align: 'center', text: 'Date', value: 'dates'},
+          {align: 'center', text: 'Date', value: 'date'},
           {align: 'center', text: 'Title', sortable: false, value: 'category'},
           {align: 'center',text: 'Owner', sortable: false, value: 'owner'},
           {align: 'center', text: 'Amount', value: 'amount'},
         ],
         items : [
-          {
-            category: 'Frozen Yogurt',
-            owner: 'haa',
-            amount: '159',
-            dates: '2018-1-21',
-            description: 'N/A',
-            _id: 100,
-          },
+          {}
         ],
         dueAmount: 0,
       }
@@ -148,11 +146,17 @@
         //show new dialog
         this.dialogTitle = 'Add Item'
         this.dialog = true;
+        this.isPicking = false;
+        this.submitDate = '';
+        this.submitTitle = '';
+        this.submitAmount = '';
+        
       },
       showEditMenu() {
         this.dialogTitle = 'Edit Item'
         //show new dialog
         this.dialog = true;
+        this.isPicking = false;
       },
       submitForm(isAdd) {
         //submit form use model submitTitle submitAmount submitDate
@@ -160,12 +164,14 @@
         //ignore share first, defualt to true
         this.dialog = false;
       },
-      formatDate (date) {
+      formatDate (date, second) {
+        console.log('instant happen')
+        console.log(date)
+        console.log(second)
         if (!date) {
           return null;
         }
         
-        this.isPicking = false;
         return date;
       },
       pickingTime() {
@@ -176,9 +182,24 @@
         this.$store.dispatch("aUpdateDT");
 
         let vm = this;
-        setTimeout(function(){
+        this.$http.get(
+          this.$store.state.backendServer + ':8081/api/trans/allTrans',
+          {credentials:true})
+          .then(response =>{
+            console.log('get HData')
+            vm.$store.dispatch("aFinishDT");
+            vm.items = [];
+
+            for(let idx in response.body){
+              console.log(response.body[idx]);
+              response.body[idx].date = response.body[idx].date.match(/([0-9\-]+)T/)[1]
+              this.items.push(response.body[idx]);
+            }
+
+          }, response => {
+            console.log('no connection');
           vm.$store.dispatch("aFinishDT");
-        }, 1500);
+          })
       },
     },
     computed: {
