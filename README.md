@@ -1,6 +1,6 @@
 # fbooks
 
-> A Vue.js project
+> Financial books for roommates based on Vue.js. This is the front-end server repo.
 
 ## Build Setup
 
