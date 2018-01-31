@@ -74,7 +74,7 @@
         let encoded = base64url.encode(encrypt);
 
         console.log('send password')
-        this.$http.get('http://jimmy9065.ddns.net:8081/api/login',
+        this.$http.get(this.$store.state.backendServer + ':8081/api/login',
                         {params: {username:this.username, password:encoded}})
         .then(response => {
           console.log('password is correct');
@@ -84,7 +84,7 @@
             {pass: response.body.pass, username: this.username})
             .then(()=>{
               console.log('get here');
-              this.$cookie.set('BOOKSUID', response.body.cookie, 1);
+              this.$cookie.set('BOOKSUID', response.body.cookie, {expires:1});
               this.$router.push({path:'/main'});
             })
             .catch(() => {
