@@ -9,6 +9,8 @@ export const store = new Vuex.Store({
     username : '',
     dataLoadState: false, // true for refreshing
     hDataLoadState: false, // true for refreshing
+    backendServer: 'http://localhost',
+    //backendServer: 'http://jimmy9065.ddns.net',
   },
   mutations: {
     updateLoginState(state, isLogin) {
@@ -20,11 +22,21 @@ export const store = new Vuex.Store({
     updateUsername(state, username) {
       state.username = username;
     },
-    updateRefreshState(state, isRefreshing) {
-      state.dataLoadState = isRefreshing;
+    updatingDT(state) {
+      console.log('updating date state: ');
+      state.dataLoadState = true;
     },
-    updateRefreshHState(state, isRefreshing) {
-      state.hDataLoadState = isRefreshing;
+    updatedDT(state) {
+      console.log('updated date state: ');
+      state.dataLoadState = false;
+    },
+    updatingHDT(state) {
+      console.log('update Hdate state: ');
+      state.hDataLoadState = true;
+    },
+    updatedHDT(state) {
+      console.log('update Hdate state: ');
+      state.hDataLoadState = false;
     },
   },
   actions: {
@@ -49,16 +61,16 @@ export const store = new Vuex.Store({
         })
       },
       aUpdateDT({commit}) {
-        commit('updateRefreshState', true);
+        commit('updatingDT');
       },
       aFinishDT({commit}) {
-        commit('updateRefreshState', false);
+        commit('updatedDT');
       },
       aUpdateHDT({commit}) {
-        commit('updateRefreshHState', true);
+        commit('updatingHDT');
       },
       aFinishHDT({commit}) {
-        commit('updateRefreshHState', false);
+        commit('updatedHDT');
       },
     },
     getters: {
