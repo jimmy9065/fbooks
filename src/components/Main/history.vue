@@ -12,7 +12,7 @@
               v-bind:items="items"
               class="elevation-1">
               <template slot="items" slot-scope="props">
-                <td class="text-xs-center">{{ props.item.dates }}</td>
+                <td class="text-xs-center">{{ props.item.date }}</td>
                 <td class="text-xs-center">{{ props.item.category }}</td>
                 <td class="text-xs-center">{{ props.item.owner }}</td>
                 <td class="text-xs-center">{{ (props.item.amount/100).toFixed(2) }}</td>
@@ -39,32 +39,37 @@
     data () {
       return {
         headers: [
-          {align: 'center', text: 'Date', value: 'dates'},
+          {align: 'center', text: 'Date', value: 'date'},
           {align: 'center', text: 'Title', sortable: false, value: 'category'},
           {align: 'center',text: 'Owner', sortable: false, value: 'owner'},
           {align: 'center', text: 'Amount', value: 'amount'},
         ],
         items : [
-          {
-            category: 'Frozen Yogurt',
-            owner: 'haa',
-            amount: '159',
-            dates: '2018-1-21',
-            description: 'N/A',
-            _id: 100,
-          },
         ],
       }
     },
     methods: {
-     updateDataTable() {
+      updateDataTable() {
         console.log("update HdataTable")
         this.$store.dispatch("aUpdateHDT");
 
         let vm = this;
-        setTimeout(function(){
-          vm.$store.dispatch("aFinishHDT");
-        }, 1500);
+        this.$http.get(
+          this.$store.state.backendServer + ':8081/api/trans/allTrans',
+          {credentials:true})
+          .then(response =>{
+            console.log('get HData')
+            vm.$store.dispatch("aFinishHDT");
+
+            for(let idx in response.body){
+              console.log(response.body[idx]);
+              this.items.push(response.body[idx]);
+            }
+
+          }, response => {
+            console.log('no connection');
+            vm.$store.dispatch("aFinishHDT");
+          })
       },
     },
     computed: {
