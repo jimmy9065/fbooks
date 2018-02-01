@@ -133,6 +133,60 @@
           </v-card-actions>
         </v-card>
       </v-dialog>
+
+      <v-dialog v-model="openPayDialog" persistent max-width="350px">
+        <v-card >
+          <v-card-title class="pb-0 pt-3">
+            <h2>Payment</h2>
+          </v-card-title>
+
+          <v-card-text class='pa-1'>
+            <v-container v-if="!isPicking">
+            <v-text-field 
+              label="Amount" 
+              v-model="submitPayment" 
+              prepend-icon="attach_money"
+              ref="paymentAmountText"
+              :rules=amountRules></v-text-field>
+            <v-text-field
+              label="Date in M-D-Y format"
+              v-model="submitDate"
+              prepend-icon="event"
+              @focus="isPicking = true"
+              readonly
+              ref="paymentDateText"
+              :rules=dateRules></v-text-field>
+            </v-container>
+            <v-container class='pa-0' v-else>
+              <v-date-picker v-model="choosingDate" v-on:input="chosenDate = formatDate($event)" no-title scrollable></v-date-picker>
+            </v-container>
+            </v-card-text>
+            <v-card-actions class='pa-0 pb-3'>
+              <v-container class='pa-0' v-if="!isPicking">
+                <v-layout >
+                  <v-spacer></v-spacer>
+                  <v-btn flat color="primary" 
+                    @click="openDialog=false">Cancel</v-btn>
+                  <v-btn flat color="primary"
+                    @click="submitPaymentForm"
+                    :disabled="!valid"
+                    >Submit</v-btn>
+                </v-layout>
+              </v-container>
+              <v-container class='pa-0' v-else>
+                <v-layout >
+                  <v-spacer></v-spacer>
+                  <v-btn flat color="primary" 
+                    @click="isPicking=false">Cancel</v-btn>
+                  <v-btn flat color="primary" 
+                    @click="submitDate=chosenDate;isPicking=false">Save</v-btn>
+                </v-layout>
+              </v-container>
+            </v-card-actions>
+            
+        </v-card>
+      </v-dialog>
+
     </v-layout>
   </v-container>
 
@@ -155,7 +209,7 @@
           (v) => !!v || 'Category is required',
         ],
         amountRules: [
-          (v) => !!v || 'Title is required',
+          (v) => !!v || 'Amount is required',
           (v) => v && v > 0.01 && v<10000 || 'Amount must be postive and less than 10000.00',
         ],
         dateRules: [
@@ -170,7 +224,9 @@
         submitTitle: '',
         submitAmount: '',
         submitIdx: '',
+        submitPayment: '',
         openDialog: false,
+        openPayDialog: false,
         disableDelete: true,
         headers: [
           {align: 'center', text: 'Date', value: 'date'},
@@ -183,7 +239,7 @@
           {}
         ],
         categories: [
-          'grocery', 'tools', 'rent', 'utility', 'others', 'payment',
+          'grocery', 'tools', 'rent', 'utility', 'others'
         ],
         pagination: {
           sortBy: 'date',
@@ -194,6 +250,17 @@
       }
     },
     methods: {
+      showPaymentMenu() {
+        this.isPicking = false;
+        this.submitDate = '';
+        this.submitAmount = '';
+        this.$refs.paymentAmountText.reset();
+        this.$refs.paymentDateText.reset();
+        this.openPayDialog = true;
+      },
+      submitPaymentForm() {
+
+      },
       showAddMenu() {
         this.dialogTitle = 'Add Item';
         this.isPicking = false;
