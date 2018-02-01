@@ -8,6 +8,7 @@ export const store = new Vuex.Store({
     loginState: false,
     username : '',
     dataLoadState: false, // true for refreshing
+    dueLoadState: false,
     hDataLoadState: false, // true for refreshing
     updateRecord: false,
     insertRecord: false,
@@ -30,6 +31,12 @@ export const store = new Vuex.Store({
     },
     updatedDT(state) {
       state.dataLoadState = false;
+    },
+    updatingDue(state) {
+      state.dueLoadState = true;
+    },
+    updatedDue(state) {
+      state.dueLoadState = false;
     },
     updatingHDT(state) {
       state.hDataLoadState = true;
@@ -79,8 +86,14 @@ export const store = new Vuex.Store({
       aUpdateDT({commit}) {
         commit('updatingDT');
       },
-      aFinishDT({commit}) {
+      aUpdatedDT({commit}) {
         commit('updatedDT');
+      },
+      aUpdateDue({commit}) {
+        commit('updatingDue');
+      },
+      aUpdatedDue({commit}) {
+        commit('updatedDue');
       },
       aUpdateHDT({commit}) {
         commit('updatingHDT');
@@ -109,16 +122,13 @@ export const store = new Vuex.Store({
     },
     getters: {
       loadLoginState(state) {
-        console.log("updated login state");
         return state.loginState;
       },
       getUsername(state) {
-        console.log("updated username");
         return state.username;
       },
       isLoaded(state) {
-        console.log("query load progress");
-        return !state.dataLoadState;
+        return !(state.dataLoadState || state.dueLoadState)
       },
       isHLoaded(state) {
         return !state.hDataLoadState;

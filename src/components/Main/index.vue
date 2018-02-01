@@ -44,7 +44,7 @@
                   <span>Refresh</span>
                 </v-tooltip>
                 <div>
-                  <h3>Total Due: {{dueAmount}}</h3>
+                  <h3>Total Due: ${{due}}</h3>
                 </div>
                 <v-btn
                   absolute
@@ -104,12 +104,6 @@
           </v-card-text>
           <v-card-text v-else>
             <v-date-picker v-model="choosingDate" v-on:input="chosenDate = formatDate($event)" no-title scrollable>
-              <v-btn @click="isPicking = false">
-                <span>Save</span>
-              </v-btn>
-              <v-btn @click="isPicking = false">
-                <span>Cancel</span>
-              </v-btn>
             </v-date-picker>
           </v-card-text>
           <v-card-actions class='pa-0 pb-3'>
@@ -189,7 +183,7 @@
           {}
         ],
         categories: [
-          'grocery', 'tools', 'rent', 'utility', 'others',
+          'grocery', 'tools', 'rent', 'utility', 'others', 'payment',
         ],
         pagination: {
           sortBy: 'date',
@@ -309,7 +303,7 @@
           this.$store.state.backendServer+':8081/api/trans/del/' + recordId,
           {credentials:true,
             headers: {
-              'Content-Type': 'application/json'
+              'Content-Type': 'application/json',
             }
           })
           .then(response => {
@@ -322,6 +316,7 @@
           })
       },
       formatDate (date) {
+        console.log(date)
         if (!date) {
           return null;
         }
@@ -332,19 +327,20 @@
         this.isPicking = true;
       },
       updateDataTable() {
-        console.log("update dataTable")
+        console.log("Update DataTable")
         this.$store.dispatch("aUpdateDT");
+        this.$store.dispatch("aUpdateDue");
 
         let vm = this;
         this.$http.get(
           this.$store.state.backendServer + ':8081/api/trans/RecentTrans',
           {credentials:true})
           .then(response =>{
-            console.log('get Data')
-            vm.$store.dispatch("aFinishDT");
+            console.log('Get Data')
+            vm.$store.dispatch("aUpdatedDT");
             vm.items = [];
 
-            let trans = response.body.trans;
+            let trans = response.body;
             console.log(trans)
             console.log(typeof trans)
             for(let idx in trans){
@@ -352,10 +348,21 @@
               trans[idx].idx = idx;
               this.items.push(trans[idx]);
             }
-            this.dueAmount = response.body.due;
           }, response => {
-            console.log('no connection');
-            vm.$store.dispatch("aFinishDT");
+            console.log('error when query recent');
+            vm.$store.dispatch("aUpdatedDT");
+          })
+
+        this.$http.get(
+          this.$store.state.backendServer + ':8081/api/trans/due',
+          {credentials:true})
+          .then(response =>{
+            console.log('Get Due')
+            this.dueAmount = (response.body.due/100).toFixed(2);
+            vm.$store.dispatch("aUpdatedDue");
+          }, response => {
+            console.log('Error when query due')
+            vm.$store.dispatch("aUpdatedDue");
           })
       },
     },
@@ -365,6 +372,9 @@
       },
       dialog: function() {
         return this.openDialog || this.$store.getters.isChaningRecord;
+      },
+      due: function() {
+        return this.dueAmount>0 ? this.dueAmount: 0;
       }
     }
   }
