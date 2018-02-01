@@ -47,7 +47,7 @@
       <v-spacer></v-spacer>
       <v-toolbar-items >
         <v-btn flat @click="logout">
-          <v-icon left>supervisor_account</v-icon>
+          <v-icon left>directions_run</v-icon>
           logout
         </v-btn>
       </v-toolbar-items>
@@ -68,9 +68,9 @@
         swipeDirection: 'left',
         //swipe: false,
         menuItems: [
-          {icon: 'account_balance', title:'Quick view', link: '/main'},
-          {icon: 'receipt', title:' History ', link: '/main/history'},
-          {icon: 'assessment', title:' Analysis ', link: '/main/analysis'},
+          {icon: 'home', title:'Quick view', link: '/main'},
+          {icon: 'account_balance', title:' History ', link: '/main/history'},
+          {icon: 'equalizer', title:' Analysis ', link: '/main/analysis'},
         ],
       }
     },

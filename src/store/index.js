@@ -9,6 +9,9 @@ export const store = new Vuex.Store({
     username : '',
     dataLoadState: false, // true for refreshing
     hDataLoadState: false, // true for refreshing
+    updateRecord: false,
+    insertRecord: false,
+    deleteRecord: false,
     backendServer: 'http://localhost',
     //backendServer: 'http://jimmy9065.ddns.net',
   },
@@ -23,25 +26,38 @@ export const store = new Vuex.Store({
       state.username = username;
     },
     updatingDT(state) {
-      console.log('updating date state: ');
       state.dataLoadState = true;
     },
     updatedDT(state) {
-      console.log('updated date state: ');
       state.dataLoadState = false;
     },
     updatingHDT(state) {
-      console.log('update Hdate state: ');
       state.hDataLoadState = true;
     },
     updatedHDT(state) {
-      console.log('update Hdate state: ');
       state.hDataLoadState = false;
+    },
+    insertRecord(state) {
+      state.insertRecord = true;
+    },
+    insertedRecord(state) {
+      state.insertRecord = false;
+    },
+    updateRecord(state) {
+      state.updateRecord = true;
+    },
+    updatedRecord(state) {
+      state.updateRecord = false;
+    },
+    deleteRecord(state) { 
+      state.deleteRecord = true;
+    },
+    deletedRecord(state) { 
+      state.deleteRecord = false;
     },
   },
   actions: {
       submitLogin({commit}, {pass, username}){
-        console.log('if pass is right:' + pass)
         return new Promise((resolve, reject) => {
           if(pass){
             commit('updateLoginState', true);
@@ -72,6 +88,24 @@ export const store = new Vuex.Store({
       aFinishHDT({commit}) {
         commit('updatedHDT');
       },
+      aInsertRecord({commit}) {
+        commit('InsertRecord');
+      },
+      aInsertRecord({commit}) {
+        commit('insertedRecord');
+      },
+      aUpdateRecord({commit}) {
+        commit('updateRecord');
+      },
+      aUpdatedRecord({commit}) {
+        commit('updatedRecord');
+      },
+      aDeleteRecord({commit}) {
+        commit('deleteRecord');
+      },
+      aDeletedRecord({commit}) {
+        commit('deletedRecord');
+      },
     },
     getters: {
       loadLoginState(state) {
@@ -88,6 +122,9 @@ export const store = new Vuex.Store({
       },
       isHLoaded(state) {
         return !state.hDataLoadState;
+      },
+      isChaningRecord(state){
+        return state.updateRecord || state.deleteRecord || state.insertRecord;
       },
     }
 })

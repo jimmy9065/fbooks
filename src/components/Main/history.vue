@@ -10,10 +10,10 @@
             <v-data-table
               v-bind:headers="headers"
               v-bind:items="items"
-              v-bind:pagination.sync="pagination"
               class="elevation-1">
               <template slot="items" slot-scope="props">
                 <td class="text-xs-center">{{ props.item.date }}</td>
+                <td class="text-xs-center">{{ props.item.description }}</td>
                 <td class="text-xs-center">{{ props.item.category }}</td>
                 <td class="text-xs-center">{{ props.item.owner }}</td>
                 <td class="text-xs-center">{{ (props.item.amount/100).toFixed(2) }}</td>
@@ -55,18 +55,15 @@
     data () {
       return {
         headers: [
-          {align: 'center', text: 'Date', value: 'date'},
-          {align: 'center', text: 'Title', sortable: false, value: 'category'},
+          {align: 'center', text: 'Date', sortable:false, value: 'date'},
+          {align: 'center', text: 'Title', sortable: false, value: 'description'},
+          {align: 'center', text: 'Category', sortable: false, value: 'category'},
           {align: 'center',text: 'Owner', sortable: false, value: 'owner'},
-          {align: 'center', text: 'Amount', value: 'amount'},
+          {align: 'center', text: 'Amount', sortable:false, value: 'amount'},
         ],
         items : [
           {}
         ],
-        pagination: {
-          sortBy: 'date',
-          descending: true,
-        },
       }
     },
     methods: {
@@ -84,7 +81,7 @@
 
             this.items = []
             for(let idx in response.body){
-              console.log(response.body[idx]);
+              response.body[idx].date = response.body[idx].date.match(/([0-9\-]+)T/)[1]
               this.items.push(response.body[idx]);
             }
 

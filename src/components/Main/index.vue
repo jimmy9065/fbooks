@@ -11,10 +11,13 @@
               v-bind:headers="headers"
               v-bind:items="items"
               hide-actions
+              must-sort
+              v-bind:pagination.sync = "pagination"
               class="elevation-1">
               <template slot="items" slot-scope="props">
-                <tr @click="showEditMenu">
+                <tr v-bind:id="props.item.idx" @click="showEditMenu($event)">
                 <td class="text-xs-center">{{ props.item.date }}</td>
+                <td class="text-xs-center">{{ props.item.description }}</td>
                 <td class="text-xs-center">{{ props.item.category }}</td>
                 <td class="text-xs-center">{{ props.item.owner }}</td>
                 <td class="text-xs-center">{{ (props.item.amount/100).toFixed(2) }}</td>
@@ -68,24 +71,35 @@
           </v-card-title>
           <v-card-text v-if="!isPicking">
             <v-container v-if="!isPicking" class="pt-0 pb-0" >
-              <v-layout wrap align-center>
-                <v-flex xs12 sm6 md10>
-                  <v-text-field label="Title" v-model="submitTitle" prepend-icon="list"></v-text-field>
-                </v-flex>
-                <v-flex xs12 sm6 md10>
-                  <v-text-field label="Amount"v-model="submitAmount" prepend-icon="attach_money"></v-text-field>
-                </v-flex>
-                <v-flex xs12 sm6 md10>
+                  <v-text-field 
+                    label="Title" 
+                    v-model="submitTitle" 
+                    prepend-icon="receipt"
+                    ref="titleText"
+                    :counter=25
+                    :rules=titleRules></v-text-field>
+                  <v-select
+                    v-bind:items="categories"
+                    v-model="submitCategory"
+                    label="Category"
+                    prepend-icon="format_list_bulleted"
+                    ref="categoryText"
+                    item-value="text"
+                    :rules=categoryRules></v-select>
+                  <v-text-field 
+                    label="Amount" 
+                    v-model="submitAmount" 
+                    prepend-icon="attach_money"
+                    ref="amountText"
+                    :rules=amountRules></v-text-field>
                   <v-text-field
-                    slot="activator"
                     label="Date in M-D-Y format"
                     v-model="submitDate"
                     prepend-icon="event"
-                    @click="pickingTime"
+                    @focus="pickingDate"
                     readonly
-                  ></v-text-field>
-                </v-flex>
-              </v-layout>
+                    ref="dateText"
+                    :rules=dateRules></v-text-field>
             </v-container>
           </v-card-text>
           <v-card-text v-else>
@@ -101,11 +115,16 @@
           <v-card-actions class='pa-0 pb-3'>
             <v-container class='pa-0' v-if="!isPicking">
               <v-layout >
+                <v-btn flat color="primary" 
+                  :disabled=disableDelete
+                  @click="submitDel">Delete</v-btn>
                 <v-spacer></v-spacer>
                 <v-btn flat color="primary" 
-                  @click="dialog=false">Cancel</v-btn>
-                <v-btn flat color="primary" 
-                  @click="submitForm">Submit</v-btn>
+                  @click="openDialog=false">Cancel</v-btn>
+                <v-btn flat color="primary"
+                  @click="submitForm"
+                  :disabled="!valid"
+                  >Submit</v-btn>
               </v-layout>
             </v-container>
             <v-container class='pa-0' v-else>
@@ -120,7 +139,6 @@
           </v-card-actions>
         </v-card>
       </v-dialog>
-
     </v-layout>
   </v-container>
 
@@ -134,59 +152,183 @@
     },
     data () {
       return {
-        dialog: false,
+        valid: true,
+        titleRules: [
+          (v) => !!v || 'Title is required',
+          (v) => v && v.length <= 25 || 'Title must be less than 10 characters',
+        ],
+        categoryRules: [
+          (v) => !!v || 'Category is required',
+        ],
+        amountRules: [
+          (v) => !!v || 'Title is required',
+          (v) => v && v > 0.01 && v<10000 || 'Amount must be postive and less than 10000.00',
+        ],
+        dateRules: [
+          (v) => !!v || 'Date is required',
+        ],
         dialogTitle: '',
-        submitDate: '',
         choosingDate: '',
         chosenDate: '',
         isPicking: false,
+        submitDate: '',
+        submitCategory: '',
         submitTitle: '',
         submitAmount: '',
+        submitIdx: '',
+        openDialog: false,
+        disableDelete: true,
         headers: [
           {align: 'center', text: 'Date', value: 'date'},
-          {align: 'center', text: 'Title', sortable: false, value: 'category'},
-          {align: 'center',text: 'Owner', sortable: false, value: 'owner'},
+          {align: 'center', text: 'Title', sortable: false, value: 'description'},
+          {align: 'center', text: 'Category', sortable: false, value: 'category'},
+          {align: 'center', text: 'Owner', sortable: false, value: 'owner'},
           {align: 'center', text: 'Amount', value: 'amount'},
         ],
         items : [
           {}
         ],
+        categories: [
+          'grocery', 'tools', 'rent', 'utility', 'others',
+        ],
+        pagination: {
+          sortBy: 'date',
+          descending: true,
+          rowsPerPage: -1,
+        },
         dueAmount: 0,
       }
     },
     methods: {
       showAddMenu() {
-        //show new dialog
-        this.dialogTitle = 'Add Item'
-        this.dialog = true;
+        this.dialogTitle = 'Add Item';
         this.isPicking = false;
         this.submitDate = '';
         this.submitTitle = '';
+        this.submitCategory = 'others';
         this.submitAmount = '';
-        
+        this.openDialog = true;
+        this.resetForm();
+        this.disableDelete=true;
       },
-      showEditMenu() {
+      showEditMenu(event) {
+        let idx = event.target.parentElement.id
+        if(this.items[idx].owner != this.$store.state.username)
+          return;
+        this.resetForm();
+        this.disableDelete=false;
         this.dialogTitle = 'Edit Item'
-        //show new dialog
-        this.dialog = true;
         this.isPicking = false;
+        this.submitDate = this.items[idx].date;
+        this.submitCategory = this.items[idx].category;
+        this.submitTitle = this.items[idx].description;
+        this.submitAmount = (this.items[idx].amount/100).toFixed(2);
+        this.submitIdx = this.items[idx].idx;
+        this.openDialog = true;
       },
-      submitForm(isAdd) {
-        //submit form use model submitTitle submitAmount submitDate
-        //ower is username 
-        //ignore share first, defualt to true
-        this.dialog = false;
+      submitForm() {
+        let newItem = {};
+        let command = null;
+
+        if(!this.validateForm()){
+          return;
+        }
+        console.log('form is valid')
+
+        if(this.dialogTitle=='Add Item'){
+          command = 'insert';
+          newItem.date = this.submitDate;
+          newItem.category = this.submitCategory;
+          newItem.description = this.submitTitle;
+          newItem.category = this.submitCategory;
+          newItem.amount = Math.floor(this.submitAmount*100);
+          newItem.owner = this.$store.state.username;
+          this.$store.dispatch('aInsertRecord').then(() =>{
+            this.openDialog = false;
+          });
+
+          newItem.idx = this.items.length;
+          this.items.push(newItem);
+        }
+        else{
+          let idx = this.submitIdx;
+          let recordId = this.items[idx]._id;
+          command = 'update/' + recordId;
+          this.items[idx].date = this.submitDate;
+          this.items[idx].description = this.submitTitle;
+          this.items[idx].category = this.submitCategory;
+          this.items[idx].amount = Math.floor(this.submitAmount*100);
+          //this.items[idx].amount = this.submitAmount*100;
+          this.$store.dispatch('aUpdateRecord').then(() =>{
+            this.openDialog = false;
+          });
+          newItem = this.items;
+        }
+
+        let vm = this;
+
+        this.$http.put(
+          this.$store.state.backendServer+':8081/api/trans/'+command,
+          newItem,
+          {credentials:true,
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          })
+        .then(response =>{
+          console.log('insert/update record');
+          vm.$store.dispatch("aUpdatedRecord");
+        }, response => {
+          console.log('insert/update record faild');
+          vm.$store.dispatch("aUpdatedRecord");
+        })
+      },
+      validateForm() {
+        let a = this.$refs.titleText.validate(true);
+        let b = this.$refs.amountText.validate(true);
+        let c = this.$refs.dateText.validate(true);
+        let d = this.$refs.categoryText.validate(true);
+
+        return a && b && c && d;
+      },
+      resetForm() {
+        this.$refs.titleText.reset();
+        this.$refs.amountText.reset();
+        this.$refs.dateText.reset();
+        this.$refs.categoryText.reset();
+      },
+      submitDel() {
+        let recordId = this.items[this.submitIdx]._id;
+
+        this.$store.dispatch("aDeleteRecord").then(() =>{
+          this.openDialog = false;
+        });
+
+        let vm = this;
+        this.$http.delete(
+          this.$store.state.backendServer+':8081/api/trans/del/' + recordId,
+          {credentials:true,
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          })
+          .then(response => {
+            console.log('failed to delete record');
+            vm.$store.dispatch("aDeletedRecord")
+            vm.items.splice(vm.submitIdx,1)
+          }, response => {
+            console.log('failed to delete record');
+            vm.$store.dispatch("aDeletedRecord");
+          })
       },
       formatDate (date) {
-        console.log('instant happen')
-        console.log(date)
         if (!date) {
           return null;
         }
-        
+        //format date in the future
         return date;
       },
-      pickingTime() {
+      pickingDate() {
         this.isPicking = true;
       },
       updateDataTable() {
@@ -195,27 +337,34 @@
 
         let vm = this;
         this.$http.get(
-          this.$store.state.backendServer + ':8081/api/trans/allTrans',
+          this.$store.state.backendServer + ':8081/api/trans/RecentTrans',
           {credentials:true})
           .then(response =>{
-            console.log('get HData')
+            console.log('get Data')
             vm.$store.dispatch("aFinishDT");
             vm.items = [];
 
-            for(let idx in response.body){
-              response.body[idx].date = response.body[idx].date.match(/([0-9\-]+)T/)[1]
-              this.items.push(response.body[idx]);
+            let trans = response.body.trans;
+            console.log(trans)
+            console.log(typeof trans)
+            for(let idx in trans){
+              trans[idx].date = trans[idx].date.match(/([0-9\-]+)T/)[1]
+              trans[idx].idx = idx;
+              this.items.push(trans[idx]);
             }
-
+            this.dueAmount = response.body.due;
           }, response => {
             console.log('no connection');
-          vm.$store.dispatch("aFinishDT");
+            vm.$store.dispatch("aFinishDT");
           })
       },
     },
     computed: {
       dataLoaded: function(){
         return this.$store.getters.isLoaded;
+      },
+      dialog: function() {
+        return this.openDialog || this.$store.getters.isChaningRecord;
       }
     }
   }
