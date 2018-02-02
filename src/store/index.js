@@ -11,9 +11,11 @@ export const store = new Vuex.Store({
     dueLoadState: false,
     hDataLoadState: false, // true for refreshing
     updateRecord: false,
+    updatePayment: false,
     insertRecord: false,
     insertPayment: false,
     deleteRecord: false,
+    deletePayment:false,
     backendServer: 'http://localhost',
     //backendServer: 'http://jimmy9065.ddns.net',
   },
@@ -63,11 +65,23 @@ export const store = new Vuex.Store({
     updatedRecord(state) {
       state.updateRecord = false;
     },
+    updatePayment(state) {
+      state.updatePayment = true;
+    },
+    updatedPayment(state) {
+      state.updatePayment = false;
+    },
     deleteRecord(state) { 
       state.deleteRecord = true;
     },
     deletedRecord(state) { 
       state.deleteRecord = false;
+    },
+    deletePayment(state) { 
+      state.delePaymentrd = true;
+    },
+    deletedPayment(state) { 
+      state.deletePayment = false;
     },
   },
   actions: {
@@ -111,7 +125,7 @@ export const store = new Vuex.Store({
       aInsertRecord({commit}) {
         commit('insertRecord');
       },
-      aInsertRecord({commit}) {
+      aInsertedRecord({commit}) {
         commit('insertedRecord');
       },
       aInsertPayment({commit}) {
@@ -126,11 +140,23 @@ export const store = new Vuex.Store({
       aUpdatedRecord({commit}) {
         commit('updatedRecord');
       },
+      aUpdatePayment({commit}) {
+        commit('updatePayment');
+      },
+      aUpdatedPayment({commit}) {
+        commit('updatedPayment');
+      },
       aDeleteRecord({commit}) {
         commit('deleteRecord');
       },
       aDeletedRecord({commit}) {
         commit('deletedRecord');
+      },
+      aDeletePayment({commit}) {
+        commit('deletePayment');
+      },
+      aDeletedPayment({commit}) {
+        commit('deletedPayment');
       },
     },
     getters: {
@@ -150,7 +176,7 @@ export const store = new Vuex.Store({
         return state.updateRecord || state.deleteRecord || state.insertRecord;
       },
       isSumbmittingPayment(state){
-        return state.insertPayment;
+        return state.insertPayment || state.updatePayment || state.deletePayment;
       },
     }
 })

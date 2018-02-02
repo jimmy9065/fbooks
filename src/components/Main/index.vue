@@ -7,9 +7,12 @@
             </v-progress-linear>
 
             <v-container class="pa-0" >
+            <v-card-title class="pt-1 pb-1" color="gray">
+            <strong>Expenses:</strong>
+            </v-card-title>
             <v-data-table
-              v-bind:headers="headers"
-              v-bind:items="items"
+              v-bind:headers="expenseHeaders"
+              v-bind:items="expenses"
               hide-actions
               must-sort
               v-bind:pagination.sync = "pagination"
@@ -29,6 +32,31 @@
                 </v-alert>
               </template>
             </v-data-table>
+
+            <v-card-title class="pt-1 pb-1" color="gray">
+            <strong>Payments:</strong>
+            </v-card-title>
+            <v-data-table
+              v-bind:headers="paymentHeaders"
+              v-bind:items="payments"
+              hide-actions
+              must-sort
+              v-bind:pagination.sync = "pagination"
+              class="elevation-1">
+              <template slot="items" slot-scope="props">
+                <tr v-bind:id="props.item.idx" @click="showEditMenu($event)">
+                <td class="text-xs-center">{{ props.item.date }}</td>
+                <td class="text-xs-center">{{ props.item.owner }}</td>
+                <td class="text-xs-center">{{ (-props.item.amount/100).toFixed(2) }}</td>
+                </tr>
+              </template>
+              <template slot="no-data">
+                <v-alert :value="true" color="error" icon="warning">
+                  Sorry, nothing to display here :(
+                </v-alert>
+              </template>
+            </v-data-table>
+
               <v-footer class="pa-4" color="gray">
                 <v-tooltip bottom class="pa-0">
                   <v-btn 
@@ -59,7 +87,6 @@
                         color="red accent-2"
                         dark
                         fab
-                        
                         v-model="fab"
                       >
                         <v-icon x-large>add</v-icon>
@@ -77,6 +104,7 @@
                     >
                       <v-icon>add_shopping_cart</v-icon>
                     </v-btn>
+
                     <v-btn
                       v-bind:disabled="!this.dataLoaded"
                       dark
@@ -110,7 +138,7 @@
                     :rules=titleRules></v-text-field>
                   <v-select
                     v-bind:items="categories"
-                    v-model="submitCategory"
+                    v-bind:value="submitCategory"
                     label="Category"
                     prepend-icon="format_list_bulleted"
                     ref="categoryText"
@@ -147,7 +175,6 @@
                   @click="openDialog=false">Cancel</v-btn>
                 <v-btn flat color="primary"
                   @click="submitForm"
-                  :disabled="!valid"
                   >Submit</v-btn>
               </v-layout>
             </v-container>
@@ -167,14 +194,14 @@
       <v-dialog v-model="payDialog" persistent max-width="350px">
         <v-card >
           <v-card-title class="pb-0 pt-3">
-            <h2>Payment</h2>
+            <h2>{{dialogTitle}}</h2>
           </v-card-title>
 
           <v-card-text class='pa-1'>
             <v-container v-if="!isPicking">
             <v-text-field 
               label="Amount" 
-              v-model="submitPayment" 
+              v-model="submitAmount" 
               prepend-icon="attach_money"
               ref="paymentAmountText"
               :rules=amountRules></v-text-field>
@@ -194,13 +221,15 @@
             <v-card-actions class='pa-0 pb-3'>
               <v-container class='pa-0' v-if="!isPicking">
                 <v-layout >
+                <v-btn flat color="primary" 
+                  :disabled=disableDelete
+                  @click="submitDel">Delete</v-btn>
                   <v-spacer></v-spacer>
                   <v-btn flat color="primary" 
                     @click="openPayDialog=false"
                     >Cancel</v-btn>
                   <v-btn flat color="primary"
-                    @click="submitPaymentForm"
-                    :disabled="!valid"
+                    @click="submitForm"
                     >Submit</v-btn>
                 </v-layout>
               </v-container>
@@ -231,7 +260,6 @@
     },
     data () {
       return {
-        valid: true,
         titleRules: [
           (v) => !!v || 'Title is required',
           (v) => v && v.length <= 25 || 'Title must be less than 10 characters',
@@ -255,22 +283,27 @@
         submitTitle: '',
         submitAmount: '',
         submitIdx: '',
-        submitPayment: '',
         openDialog: false,
         openPayDialog: false,
         disableDelete: true,
-        headers: [
-          {align: 'center', text: 'Date', value: 'date'},
+        expenseHeaders: [
+          {align: 'center', text: 'Date', sortable:false, value: 'date'},
           {align: 'center', text: 'Title', sortable: false, value: 'description'},
           {align: 'center', text: 'Category', sortable: false, value: 'category'},
-          {align: 'center', text: 'Owner', sortable: false, value: 'owner'},
-          {align: 'center', text: 'Amount', value: 'amount'},
+          {align: 'center',text: 'Owner', sortable: false, value: 'owner'},
+          {align: 'center', text: 'Amount', sortable:false, value: 'amount'},
         ],
-        items : [
-          {}
+        paymentHeaders: [
+          {align: 'center', text: 'Date', sortable:false, value: 'date'},
+          {align: 'center',text: 'Owner', sortable: false, value: 'owner'},
+          {align: 'center', text: 'Amount', sortable:false, value: 'amount'},
+        ],
+        expenses: [
+        ],
+        payments : [
         ],
         categories: [
-          'grocery', 'tools', 'rent', 'utility', 'others'
+          'Grocery', 'Tools', 'Rent', 'Utility', 'Others'
         ],
         pagination: {
           sortBy: 'date',
@@ -286,98 +319,139 @@
     },
     methods: {
       showPaymentMenu() {
+        console.log('payment Menu');
+        this.dialogTitle = 'Add Payment';
         this.isPicking = false;
         this.submitDate = '';
         this.submitAmount = '';
-        this.$refs.paymentAmountText.reset();
-        this.$refs.paymentDateText.reset();
+        this.submitCategory = "payment";
+        this.resetForm();
         this.openPayDialog = true;
-      },
-      submitPaymentForm() {
-        this.$store.dispatch('aInsertPayment');
-        this.openPayDialog = false;
-
-        let vm = this;
-
-        this.$http.put(
-          this.$store.state.backendServer+':8081/api/trans/'+command,
-          newItem,
-          {credentials:true,
-            headers: {
-              'Content-Type': 'application/json'
-            }
-          })
-        .then(response =>{
-          console.log('insert/update record');
-          vm.$store.dispatch("aUpdatedRecord");
-        }, response => {
-          console.log('insert/update record faild');
-          vm.$store.dispatch("aUpdatedRecord");
-        })
+        this.disableDelete=true;
+        console.log(this.submitCategory)
       },
       showAddMenu() {
+        console.log('expenses Menu');
         this.dialogTitle = 'Add Item';
         this.isPicking = false;
         this.submitDate = '';
         this.submitTitle = '';
-        this.submitCategory = 'others';
+        this.submitCategory = "Others";
         this.submitAmount = '';
-        this.openDialog = true;
         this.resetForm();
+        this.openDialog = true;
         this.disableDelete=true;
       },
       showEditMenu(event) {
-        let idx = event.target.parentElement.id
-        if(this.items[idx].owner != this.$store.state.username)
+        let type = event.target.parentElement.id.slice(0,1);
+        let idx = event.target.parentElement.id.slice(1);
+        if(type == 'p')
+          this.showEditPaymentMenu(idx);
+        else
+          this.showEditExpenseMenu(idx);
+      },
+      showEditExpenseMenu(idx) {
+        if(this.expenses[idx].owner != this.$store.state.username)
           return;
         this.resetForm();
         this.disableDelete=false;
         this.dialogTitle = 'Edit Item'
         this.isPicking = false;
-        this.submitDate = this.items[idx].date;
-        this.submitCategory = this.items[idx].category;
-        this.submitTitle = this.items[idx].description;
-        this.submitAmount = (this.items[idx].amount/100).toFixed(2);
-        this.submitIdx = this.items[idx].idx;
+
+        this.submitCategory = this.expenses[idx].category;
+        this.submitDate = this.expenses[idx].date;
+        this.submitTitle = this.expenses[idx].description;
+        this.submitAmount = (this.expenses[idx].amount/100).toFixed(2);
+        this.submitIdx = this.expenses[idx].idx;
         this.openDialog = true;
+        console.log(this.expenses[idx])
+      },
+      showEditPaymentMenu(idx) {
+        if(this.payments[idx].owner != this.$store.state.username)
+          return;
+        this.resetForm();
+        this.disableDelete = false;
+        this.dialogTitle = 'Edit Payment';
+        this.isPicking = false;
+
+        this.submitCategory = "payment";
+        this.submitDate = this.payments[idx].date;
+        this.submitAmount = -(this.payments[idx].amount/100).toFixed(2);
+        this.submitIdx = this.payments[idx].idx;
+        this.openPayDialog = true;
       },
       submitForm() {
         let newItem = {};
         let command = null;
+        let add = false;
 
         if(!this.validateForm()){
+          console.log('validation failed')
           return;
         }
         console.log('form is valid')
 
-        if(this.dialogTitle=='Add Item'){
+        if(this.dialogTitle.slice(0,3)=='Add'){
+          console.log('Adding');
+          add = true;
           command = 'insert';
           newItem.date = this.submitDate;
           newItem.category = this.submitCategory;
           newItem.description = this.submitTitle;
           newItem.category = this.submitCategory;
-          newItem.amount = Math.floor(this.submitAmount*100);
           newItem.owner = this.$store.state.username;
-          this.$store.dispatch('aInsertRecord').then(() =>{
-            this.openDialog = false;
-          });
-
-          newItem.idx = this.items.length;
-          this.items.push(newItem);
+          newItem.amount = Math.floor(this.submitAmount*100);
+          console.log(this.submitCategory)
+          console.log('temp newItem');
+          console.log(newItem)
+          if(newItem.category == 'payment'){
+            console.log('payment');
+            newItem.amount = - newItem.amount;
+            this.$store.dispatch('aInsertPayment').then(() => {
+              this.openPayDialog = false;
+            });
+            newItem.idx = 'p' + this.payments.length;
+            this.payments.push(newItem);
+          }
+          else{
+            console.log('expense');
+            this.$store.dispatch('aInsertRecord').then(() => {
+              this.openDialog = false;
+            });
+            newItem.idx = 'e' + this.expenses.length;
+            this.expenses.push(newItem);
+          }
+          console.log('here is new Item:')
+          console.log(newItem);
         }
         else{
-          let idx = this.submitIdx;
-          let recordId = this.items[idx]._id;
-          command = 'update/' + recordId;
-          this.items[idx].date = this.submitDate;
-          this.items[idx].description = this.submitTitle;
-          this.items[idx].category = this.submitCategory;
-          this.items[idx].amount = Math.floor(this.submitAmount*100);
-          //this.items[idx].amount = this.submitAmount*100;
-          this.$store.dispatch('aUpdateRecord').then(() =>{
-            this.openDialog = false;
-          });
-          newItem = this.items;
+          console.log('Editing')
+          let type = this.submitIdx.slice(0,1);
+          let idx = this.submitIdx.slice(1);
+          if(type == "p"){
+            console.log(this.payments[idx])
+            let recordId = this.payments[idx]._id;
+            command = 'update/' + recordId;
+            this.payments[idx].date = this.submitDate;
+            this.payments[idx].category = 'payment';
+            this.payments[idx].amount = -Math.floor(this.submitAmount*100);
+            this.$store.dispatch('aUpdatedPayment').then(() => {
+              this.openPayDialog = false;
+            });
+            newItem = this.payments[idx];
+          }
+          else{
+            let recordId = this.expenses[idx]._id;
+            command = 'update/' + recordId;
+            this.expenses[idx].date = this.submitDate;
+            this.expenses[idx].description = this.submitTitle;
+            this.expenses[idx].category = this.submitCategory;
+            this.expenses[idx].amount = Math.floor(this.submitAmount*100);
+            this.$store.dispatch('aUpdateRecord').then(() => {
+              this.openDialog = false;
+            });
+            newItem = this.expenses[idx];
+          }
         }
 
         let vm = this;
@@ -390,19 +464,51 @@
               'Content-Type': 'application/json'
             }
           })
-        .then(response =>{
-          console.log('insert/update record');
-          vm.$store.dispatch("aUpdatedRecord");
+        .then(response => {
+          console.log('inserted/updated record/payment');
+          if(add){
+            if(newItem.category == 'payment'){
+              this.payments[this.payments.length-1]._id = response.body._id;
+              vm.$store.dispatch("aInsertedPayment");
+            }
+            else{
+              console.log('_id = ' + response.body._id);
+              this.expenses[this.expenses.length-1]._id = response.body._id;
+              console.log('the element: ')
+              console.log(this.expenses[this.expenses.length-1]);
+              vm.$store.dispatch("aInsertedRecord");
+            }
+          }
+          else{
+            if(newItem.category == 'payment')
+              vm.$store.dispatch("aUpdatedPayment");
+            else
+              vm.$store.dispatch("aUpdatedRecord");
+          }
         }, response => {
-          console.log('insert/update record faild');
-          vm.$store.dispatch("aUpdatedRecord");
+          console.log('insert/update record/payment faild');
+          if(newItem.category == 'payment'){
+            vm.$store.dispatch("aUpdatedPayment");
+            vm.$store.dispatch("aInsertedPayment");
+          }
+          else{
+            vm.$store.dispatch("aUpdatedRecord");
+            vm.$store.dispatch("aInsertedRecord");
+          }
         })
       },
       validateForm() {
-        let a = this.$refs.titleText.validate(true);
-        let b = this.$refs.amountText.validate(true);
-        let c = this.$refs.dateText.validate(true);
-        let d = this.$refs.categoryText.validate(true);
+        let a = true, b=true, c=true, d=true;
+        if(this.dialog){
+          a = this.$refs.titleText.validate(true);
+          b = this.$refs.amountText.validate(true);
+          c = this.$refs.dateText.validate(true);
+          d = this.$refs.categoryText.validate(true);
+        }
+        else{
+          b = this.$refs.amountText.validate(true);
+          c = this.$refs.dateText.validate(true);
+        }
 
         return a && b && c && d;
       },
@@ -411,9 +517,19 @@
         this.$refs.amountText.reset();
         this.$refs.dateText.reset();
         this.$refs.categoryText.reset();
+        this.$refs.paymentAmountText.reset();
+        this.$refs.paymentDateText.reset();
       },
       submitDel() {
-        let recordId = this.items[this.submitIdx]._id;
+        console.log(this.submitIdx);
+        if(this.submitCategory == "payment")
+          this.deletePayment(this.submitIdx.slice(1));
+        else
+          this.deleteExpense(this.submitIdx.slice(1));
+      },
+      deleteExpense(idx) {
+        console.log('delete a expense');
+        let recordId = this.expenses[idx]._id;
 
         this.$store.dispatch("aDeleteRecord").then(() =>{
           this.openDialog = false;
@@ -428,12 +544,36 @@
             }
           })
           .then(response => {
-            console.log('failed to delete record');
+            console.log('deleted record');
             vm.$store.dispatch("aDeletedRecord")
-            vm.items.splice(vm.submitIdx,1)
+            vm.expenses.splice(idx, 1)
           }, response => {
             console.log('failed to delete record');
             vm.$store.dispatch("aDeletedRecord");
+          })
+      },
+      deletePayment(idx) {
+        let recordId = this.payments[idx]._id;
+
+        this.$store.dispatch("aDeletePayment").then(() =>{
+          this.openPayDialog = false;
+        });
+
+        let vm = this;
+        this.$http.delete(
+          this.$store.state.backendServer+':8081/api/trans/del/' + recordId,
+          {credentials:true,
+            headers: {
+              'Content-Type': 'application/json',
+            }
+          })
+          .then(response => {
+            console.log('deleted payment');
+            vm.$store.dispatch("aDeletedPayment")
+            vm.payments.splice(idx,1)
+          }, response => {
+            console.log('failed to delete payment');
+            vm.$store.dispatch("aDeletedPayment");
           })
       },
       formatDate (date) {
@@ -459,15 +599,25 @@
           .then(response =>{
             console.log('Get Data')
             vm.$store.dispatch("aUpdatedDT");
-            vm.items = [];
+            vm.expenses = [];
+            vm.payments = [];
+            let expenseIdx = 0, paymentIdx = 0;
 
             let trans = response.body;
             console.log(trans)
             console.log(typeof trans)
             for(let idx in trans){
               trans[idx].date = trans[idx].date.match(/([0-9\-]+)T/)[1]
-              trans[idx].idx = idx;
-              this.items.push(trans[idx]);
+              if(trans[idx].category == "payment"){
+                trans[idx].idx = 'p' + paymentIdx;
+                paymentIdx += 1;
+                this.payments.push(trans[idx]);
+              }
+              else{
+                trans[idx].idx = 'e' + expenseIdx;
+                expenseIdx += 1;
+                this.expenses.push(trans[idx]);
+              }
             }
           }, response => {
             console.log('error when query recent');

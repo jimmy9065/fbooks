@@ -3,27 +3,50 @@
     <v-layout column wrap justify-center>
       <v-flex>
         <v-card column >
-            <v-progress-linear v-bind:indeterminate="true" v-bind:active="!HdataLoaded">
-            </v-progress-linear>
 
-            <v-container class="pa-0" >
-            <v-data-table
-              v-bind:headers="headers"
-              v-bind:items="items"
-              class="elevation-1">
-              <template slot="items" slot-scope="props">
-                <td class="text-xs-center">{{ props.item.date }}</td>
-                <td class="text-xs-center">{{ props.item.description }}</td>
-                <td class="text-xs-center">{{ props.item.category }}</td>
-                <td class="text-xs-center">{{ props.item.owner }}</td>
-                <td class="text-xs-center">{{ (props.item.amount/100).toFixed(2) }}</td>
-              </template>
-              <template slot="no-data">
-                <v-alert :value="true" color="error" icon="warning">
-                  Sorry, nothing to display here :(
-                </v-alert>
-              </template>
-            </v-data-table>
+            <v-container class="pa-0">
+              <v-card-title class="pt-1 pb-1" color="gray">
+              <strong>Expenses:</strong>
+              </v-card-title>
+              <v-data-table
+                id='expenseDT'
+                v-bind:headers="expenseHeaders"
+                v-bind:items="expenses"
+                class="elevation-1">
+                <template slot="items" slot-scope="props">
+                  <td class="text-xs-center">{{ props.item.date }}</td>
+                  <td class="text-xs-center">{{ props.item.description }}</td>
+                  <td class="text-xs-center">{{ props.item.category }}</td>
+                  <td class="text-xs-center">{{ props.item.owner }}</td>
+                  <td class="text-xs-center">{{ (props.item.amount/100).toFixed(2) }}</td>
+                </template>
+                <template slot="no-data">
+                  <v-alert :value="true" color="error" icon="warning">
+                    Sorry, nothing to display here :(
+                  </v-alert>
+                </template>
+              </v-data-table>
+
+              <v-card-title class="pt-1 pb-1" color="gray">
+              <strong>Payments:</strong>
+              </v-card-title>
+              <v-data-table
+                id='paymentDT'
+                v-bind:headers="paymentHeaders"
+                v-bind:items="payments"
+                class="elevation-1">
+                <template slot="items" slot-scope="props">
+                  <td class="text-xs-center">{{ props.item.date }}</td>
+                  <td class="text-xs-center">{{ props.item.owner }}</td>
+                  <td class="text-xs-center">{{ -(props.item.amount/100).toFixed(2) }}</td>
+                </template>
+                <template slot="no-data">
+                  <v-alert :value="true" color="error" icon="warning">
+                    Sorry, nothing to display here :(
+                  </v-alert>
+                </template>
+              </v-data-table>
+
               <v-footer class="pa-4" color="gray">
                 <v-tooltip bottom>
                   <v-btn 
@@ -54,15 +77,21 @@
     },
     data () {
       return {
-        headers: [
+        expenseHeaders: [
           {align: 'center', text: 'Date', sortable:false, value: 'date'},
           {align: 'center', text: 'Title', sortable: false, value: 'description'},
           {align: 'center', text: 'Category', sortable: false, value: 'category'},
           {align: 'center',text: 'Owner', sortable: false, value: 'owner'},
           {align: 'center', text: 'Amount', sortable:false, value: 'amount'},
         ],
-        items : [
-          {}
+        paymentHeaders: [
+          {align: 'center', text: 'Date', sortable:false, value: 'date'},
+          {align: 'center',text: 'Owner', sortable: false, value: 'owner'},
+          {align: 'center', text: 'Amount', sortable:false, value: 'amount'},
+        ],
+        expenses: [
+        ],
+        payments : [
         ],
       }
     },
@@ -79,10 +108,14 @@
             console.log('get HData')
             vm.$store.dispatch("aFinishHDT");
 
-            this.items = []
+            this.expenses = []
+            this.payments = []
             for(let idx in response.body){
               response.body[idx].date = response.body[idx].date.match(/([0-9\-]+)T/)[1]
-              this.items.push(response.body[idx]);
+              if(response.body[idx].category == 'payment')
+                this.payments.push(response.body[idx]);
+              else
+                this.expenses.push(response.body[idx]);
             }
 
           }, response => {
