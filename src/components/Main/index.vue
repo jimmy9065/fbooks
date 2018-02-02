@@ -46,19 +46,49 @@
                 <div>
                   <h3>Total Due: ${{due}}</h3>
                 </div>
-                <v-btn
-                  absolute
-                  v-bind:disabled="!this.dataLoaded"
-                  dark
-                  fab
-                  bottom
-                  right
-                  large
-                  color="pink"
-                  @click="showAddMenu"
-                >
-                  <v-icon>add</v-icon>
-                </v-btn>
+                <v-spacer></v-spacer>
+                <v-speed-dial
+                  v-model="fab"
+                  :right=true
+                  :top = true
+                  direction="left"
+                  transition='slide-y-reverse-transition'
+                  >
+                    <v-btn
+                        slot="activator"
+                        color="red accent-2"
+                        dark
+                        fab
+                        
+                        v-model="fab"
+                      >
+                        <v-icon x-large>add</v-icon>
+                        <v-icon x-large>close</v-icon>
+                      </v-btn>
+      
+                    <v-btn
+                      v-bind:disabled="!this.dataLoaded"
+                      dark
+                      fab
+                      right
+                      small
+                      color="indigo"
+                      @click="showAddMenu"
+                    >
+                      <v-icon>add_shopping_cart</v-icon>
+                    </v-btn>
+                    <v-btn
+                      v-bind:disabled="!this.dataLoaded"
+                      dark
+                      fab
+                      right
+                      small
+                      color="green"
+                      @click="showPaymentMenu"
+                    >
+                      <v-icon>credit_card</v-icon>
+                    </v-btn>
+                </v-speed-dial>
               </v-footer>
             </v-container>
         </v-card>
@@ -134,7 +164,7 @@
         </v-card>
       </v-dialog>
 
-      <v-dialog v-model="openPayDialog" persistent max-width="350px">
+      <v-dialog v-model="payDialog" persistent max-width="350px">
         <v-card >
           <v-card-title class="pb-0 pt-3">
             <h2>Payment</h2>
@@ -166,7 +196,8 @@
                 <v-layout >
                   <v-spacer></v-spacer>
                   <v-btn flat color="primary" 
-                    @click="openDialog=false">Cancel</v-btn>
+                    @click="openPayDialog=false"
+                    >Cancel</v-btn>
                   <v-btn flat color="primary"
                     @click="submitPaymentForm"
                     :disabled="!valid"
@@ -247,6 +278,10 @@
           rowsPerPage: -1,
         },
         dueAmount: 0,
+
+        fab: false,
+        fling: false,
+        tabs: null,
       }
     },
     methods: {
@@ -259,7 +294,26 @@
         this.openPayDialog = true;
       },
       submitPaymentForm() {
+        this.$store.dispatch('aInsertPayment');
+        this.openPayDialog = false;
 
+        let vm = this;
+
+        this.$http.put(
+          this.$store.state.backendServer+':8081/api/trans/'+command,
+          newItem,
+          {credentials:true,
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          })
+        .then(response =>{
+          console.log('insert/update record');
+          vm.$store.dispatch("aUpdatedRecord");
+        }, response => {
+          console.log('insert/update record faild');
+          vm.$store.dispatch("aUpdatedRecord");
+        })
       },
       showAddMenu() {
         this.dialogTitle = 'Add Item';
@@ -439,6 +493,9 @@
       },
       dialog: function() {
         return this.openDialog || this.$store.getters.isChaningRecord;
+      },
+      payDialog: function() {
+        return this.openPayDialog || this.$store.getters.isSumbmittingPayment;
       },
       due: function() {
         return this.dueAmount>0 ? this.dueAmount: 0;

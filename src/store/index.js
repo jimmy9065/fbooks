@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 
-Vue.use(Vuex)
+Vue.use(Vuex);
 
 export const store = new Vuex.Store({
   state: {
@@ -12,6 +12,7 @@ export const store = new Vuex.Store({
     hDataLoadState: false, // true for refreshing
     updateRecord: false,
     insertRecord: false,
+    insertPayment: false,
     deleteRecord: false,
     backendServer: 'http://localhost',
     //backendServer: 'http://jimmy9065.ddns.net',
@@ -49,6 +50,12 @@ export const store = new Vuex.Store({
     },
     insertedRecord(state) {
       state.insertRecord = false;
+    },
+    insertPayment(state) {
+      state.insertPayment = true;
+    },
+    insertedPayment(state) {
+      state.insertPayment = false;
     },
     updateRecord(state) {
       state.updateRecord = true;
@@ -102,10 +109,16 @@ export const store = new Vuex.Store({
         commit('updatedHDT');
       },
       aInsertRecord({commit}) {
-        commit('InsertRecord');
+        commit('insertRecord');
       },
       aInsertRecord({commit}) {
         commit('insertedRecord');
+      },
+      aInsertPayment({commit}) {
+        commit('insertPayment');
+      },
+      aInsertedPayment({commit}) {
+        commit('insertedPayment');
       },
       aUpdateRecord({commit}) {
         commit('updateRecord');
@@ -135,6 +148,9 @@ export const store = new Vuex.Store({
       },
       isChaningRecord(state){
         return state.updateRecord || state.deleteRecord || state.insertRecord;
+      },
+      isSumbmittingPayment(state){
+        return state.insertPayment;
       },
     }
 })
