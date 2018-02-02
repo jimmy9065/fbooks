@@ -15,9 +15,9 @@
               </v-layout>
             </v-container>
           </v-card-title>
-          <v-card-media height="250px">
+          <v-card-media height="290px">
             <v-container>
-              <vue-chart type="bar" :data="chartData"></vue-chart>
+              <vue-chart type="bar" :data="expenseData" :options="myOption"></vue-chart>
             </v-container>
           </v-card-media>
           <v-card-text>
@@ -33,13 +33,13 @@
           <v-card-title >
             <v-container class='pa-0'>
               <v-layout justify-center>
-                <h2>Roommates Expense Distribution</h2>
+                <h2>Roommates Expense Contribution</h2>
               </v-layout>
             </v-container>
           </v-card-title>
-          <v-card-media height="250px">
+          <v-card-media height="290px">
             <v-container>
-
+              <vue-chart type="doughnut" :data="contributeData" :options="myOption"></vue-chart>
             </v-container>
           </v-card-media>
           <v-card-text>
@@ -57,34 +57,96 @@
   export default {
     created(){
       console.log("loading data");
-      this.updateDataTable();
+      this.updateGraph();
     },
     data () {
       return {
-        chartData: {
-          label: ['item1','item2','item3',],
+        expenseData: {
+          datasets: [],
+        },
+        contributeData: {
+          labels: [],
           datasets: [
             {
-              label: 'Component 1',
-              data:[10,20,30]
+              data:[],
+              backgroundColor: [
+                '#ff4d4d',
+                '#4d94ff',
+                '#00D8FF',
+                '#41B883',
+              ],
             },
-            {
-              label: 'Component 2',
-              data:[40,20,30]
-            },
-          ]
-        }
+          ],
+        },
+        myOption: {
+          legend: {
+            labels: {
+              fontColor: '#47476b',
+              fontSize: 15,
+              fontStyle:'bold',
+            }
+          }
+        },
+        backgroundColor: [
+          '#ff4d4d',
+          '#4d94ff',
+          '#00D8FF',
+          '#41B883',
+        ],
       }
     },
     methods: {
-     updateDataTable() {
+      updateGraph() {
         console.log("update HdataTable")
-        //this.$store.dispatch("aUpdateHDT");
+        this.$store.dispatch("aUpdateHDT");
 
         let vm = this;
-        setTimeout(function(){
-          //vm.$store.dispatch("aFinishHDT");
-        }, 1500);
+        this.$http.get(
+          this.$store.state.backendServer + ':8081/api/trans/due',
+          {credentials:true})
+        .then(response => {
+          console.log('Updated graph')
+          console.log('response body:')
+          console.log(response.body)
+          console.log(response.body.details);
+          let details = response.body.details;
+          vm.contributeData.labels = [];
+          vm.contributeData.datasets[0].data = [];
+          for(let idx in details){
+            vm.contributeData.labels.push(details[idx]._id);
+            vm.contributeData.datasets[0].data.push(details[idx].total/100);
+          }
+          console.log(vm.contributeData.datasets)
+        }, response => {
+          console.log('Faild to update graph')
+          vm.$store.dispatch("aFinishHDT");
+          return;
+        })
+
+        this.$http.get(
+          this.$store.state.backendServer + ':8081/api/trans/dist',
+          {credentials:true})
+        .then(response => {
+          console.log('data:')
+          console.log(response.body.data);
+          let dist = response.body.data;
+          vm.expenseData.datasets = [];
+          for(let idx in dist){
+            let newItem = {};
+            newItem.label = dist[idx]._id;
+            newItem.data = [dist[idx].amount, 0];
+            newItem.backgroundColor = this.backgroundColor[idx];
+            vm.expenseData.datasets.push(newItem);
+          }
+          console.log(vm.contributeData.datasets)
+        }, response => {
+          console.log('Faild to update graph')
+          vm.$store.dispatch("aFinishHDT");
+          return;
+        })
+
+        console.log("Updated the grpah");
+        this.$store.dispatch("aFinishHDT");
       },
     },
     computed: {

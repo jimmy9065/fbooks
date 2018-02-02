@@ -303,7 +303,7 @@
         payments : [
         ],
         categories: [
-          'Grocery', 'Tools', 'Rent', 'Utility', 'Others'
+          'Grocery', 'Tools', 'Rent', 'Utility', 'Dinner', 'Others'
         ],
         pagination: {
           sortBy: 'date',
@@ -336,7 +336,7 @@
         this.isPicking = false;
         this.submitDate = '';
         this.submitTitle = '';
-        this.submitCategory = "Others";
+        //this.submitCategory = "Others";
         this.submitAmount = '';
         this.resetForm();
         this.openDialog = true;
