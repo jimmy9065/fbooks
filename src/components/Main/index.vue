@@ -3,9 +3,6 @@
     <v-layout column wrap justify-center>
       <v-flex>
         <v-card column >
-            <v-progress-linear v-bind:indeterminate="true" v-bind:active="!dataLoaded">
-            </v-progress-linear>
-
             <v-container class="pa-0" >
             <v-card-title class="pt-1 pb-1" color="gray">
             <strong>Expenses:</strong>
@@ -100,7 +97,7 @@
                       right
                       small
                       color="indigo"
-                      @click="showAddMenu"
+                      @click="showAddExpenseMenu"
                     >
                       <v-icon>add_shopping_cart</v-icon>
                     </v-btn>
@@ -112,7 +109,7 @@
                       right
                       small
                       color="green"
-                      @click="showPaymentMenu"
+                      @click="showAddPaymentMenu"
                     >
                       <v-icon>credit_card</v-icon>
                     </v-btn>
@@ -284,6 +281,7 @@
         submitTitle: '',
         submitAmount: '',
         submitIdx: '',
+        oldAmount: 0,
         openDialog: false,
         openPayDialog: false,
         disableDelete: true,
@@ -319,26 +317,27 @@
       }
     },
     methods: {
-      showPaymentMenu() {
+      showAddPaymentMenu() {
         console.log('payment Menu');
         this.dialogTitle = 'Add Payment';
         this.isPicking = false;
         this.submitDate = '';
         this.submitAmount = '';
+        this.oldAmount = 0;
         this.resetForm();
         this.openPayDialog = true;
         this.disableDelete=true;
         console.log(this.submitCategory)
       },
-      showAddMenu() {
+      showAddExpenseMenu() {
         console.log('expenses Menu');
         this.dialogTitle = 'Add Item';
         this.isPicking = false;
         this.submitDate = '';
         this.submitTitle = '';
-        //this.submitCategory = "Others";
         this.submitCategory = "";
         this.submitAmount = '';
+        this.oldAmount = 0;
         this.resetForm();
         this.openDialog = true;
         this.disableDelete=true;
@@ -363,6 +362,7 @@
         this.submitDate = this.expenses[idx].date;
         this.submitTitle = this.expenses[idx].description;
         this.submitAmount = (this.expenses[idx].amount/100).toFixed(2);
+        this.oldAmount = this.submitAmount;
         this.submitIdx = this.expenses[idx].idx;
         this.openDialog = true;
         console.log(this.expenses[idx])
@@ -378,6 +378,7 @@
         this.submitCategory = "payment";
         this.submitDate = this.payments[idx].date;
         this.submitAmount = (this.payments[idx].amount/100).toFixed(2);
+        this.oldAmount = this.submitAmount;
         this.submitIdx = this.payments[idx].idx;
         this.openPayDialog = true;
       },
@@ -386,6 +387,7 @@
         let command = null;
         let add = false;
         let isPayment = false;
+        let diffDue = this.submitAmount - this.oldAmount;
 
         if(!this.validateForm()){
           console.log('validation failed')
@@ -475,6 +477,7 @@
             if(isPayment){
               this.payments[this.payments.length-1]._id = response.body._id;
               vm.$store.dispatch("aInsertedPayment");
+              this.dueAmount -= diffDue;
             }
             else{
               console.log('_id = ' + response.body._id);
@@ -482,14 +485,20 @@
               console.log('the element: ')
               console.log(this.expenses[this.expenses.length-1]);
               vm.$store.dispatch("aInsertedRecord");
+              this.dueAmount -= diffDue/2;
             }
           }
           else{
-            if(isPayment)
+            if(isPayment){
               vm.$store.dispatch("aUpdatedPayment");
-            else
+              this.dueAmount -= diffDue;
+            }
+            else{
               vm.$store.dispatch("aUpdatedRecord");
+              this.dueAmount -= diffDue/2;
+            }
           }
+          console.log('new due:' + this.dueAmount)
         }, response => {
           console.log('insert/update record/payment faild');
           if(newItem.category == 'payment'){
@@ -552,6 +561,7 @@
             console.log('deleted record');
             vm.$store.dispatch("aDeletedRecord")
             vm.expenses.splice(idx, 1)
+            this.dueAmount += (this.oldAmount / 2);
           }, response => {
             console.log('failed to delete record');
             vm.$store.dispatch("aDeletedRecord");
@@ -573,9 +583,11 @@
             }
           })
           .then(response => {
-            console.log('deleted payment');
-            vm.$store.dispatch("aDeletedPayment")
+            console.log('deleted payment:' + this.oldAmount);
+            vm.$store.dispatch("aDeletedPayment");
             vm.payments.splice(idx,1)
+            this.dueAmount += (+this.oldAmount);
+            console.log('new Due Amount: ' + this.dueAmount);
           }, response => {
             console.log('failed to delete payment');
             vm.$store.dispatch("aDeletedPayment");
@@ -634,7 +646,7 @@
           {credentials:true})
           .then(response =>{
             console.log('Get Due')
-            this.dueAmount = (response.body.due/100).toFixed(2);
+            this.dueAmount = response.body.due/100;
             vm.$store.dispatch("aUpdatedDue");
           }, response => {
             console.log('Error when query due')
@@ -653,7 +665,7 @@
         return this.openPayDialog || this.$store.getters.isSumbmittingPayment;
       },
       due: function() {
-        return this.dueAmount>0 ? this.dueAmount: 0;
+        return (this.dueAmount>0 ? this.dueAmount: 0).toFixed(2);
       }
     }
   }
