@@ -1,53 +1,59 @@
 <template>
-  <v-container fill-height class='pt-0'>
+  <v-container fluid class='px-2 pt-0'>
     <v-layout row wrap justify-center>
-      <v-flex xs8 class='pa-0'>
-            <v-progress-linear v-bind:indeterminate="true" v-bind:active="!HdataLoaded">
-            </v-progress-linear>
+      <v-flex xs12 lg10>
+        <v-progress-linear v-bind:indeterminate="true" v-bind:active="!HdataLoaded"></v-progress-linear>
       </v-flex>
+    </v-layout>
 
-      <v-flex xs8 class='pb-4'>
+    <v-layout row wrap justify-center>
+      <v-flex xs12 lg7>
         <v-card>
-          <v-card-title >
-            <v-container class='pa-0'>
-              <v-layout justify-center>
-                <h2>Individule Expense distribution</h2>
-              </v-layout>
-            </v-container>
-          </v-card-title>
-          <v-card-media height="290px">
-            <v-container>
-              <vue-chart type="bar" :data="expenseData" :options="myOption"></vue-chart>
-            </v-container>
-          </v-card-media>
-          <v-card-text>
-            <v-container>
-            </v-container>
-          </v-card-text>
+          <v-container class='px-1 py-1'>
+            <v-layout justify-center>
+              <v-flex xs11 lg7>
+                <v-card-title>
+                  <strong class='title'>Individule Expense distribution</strong>
+                </v-card-title>
+              </v-flex>
+            </v-layout>
+            <v-layout justify-center>
+              <v-flex xs14 lg8>
+                <v-card-media>
+                    <vue-chart type="bar" :data="expenseData" :options="myOption"></vue-chart>
+                </v-card-media>
+              </v-flex>
+            </v-layout>
+          </v-container>
         </v-card>
-        <v-divider></v-divider>
       </v-flex>
+    </v-layout>
 
-      <v-flex xs8 class='bt-4'>
+    <v-layout >
+      <v-container class='pa-1'>
+      </v-container>
+    </v-layout>
+
+    <v-layout row wrap justify-center>
+      <v-flex xs12 lg7>
         <v-card>
-          <v-card-title >
-            <v-container class='pa-0'>
-              <v-layout justify-center>
-                <h2>Roommates Expense Contribution</h2>
-              </v-layout>
-            </v-container>
-          </v-card-title>
-          <v-card-media height="290px">
-            <v-container>
-              <vue-chart type="doughnut" :data="contributeData" :options="myOption"></vue-chart>
-            </v-container>
-          </v-card-media>
-          <v-card-text>
-            <v-container>
-            </v-container>
-          </v-card-text>
+          <v-container class='px-1 py-1'>
+            <v-layout justify-center>
+              <v-flex xs12 lg7>
+                <v-card-title>
+                  <strong class='title'>Roommates Expense Contribution</strong>
+                </v-card-title>
+              </v-flex>
+            </v-layout>
+            <v-layout justify-center>
+              <v-flex xs11 lg5>
+                <v-card-media>
+                  <vue-chart type="doughnut" :data="contributeData" :options="myOption" :width="pieWidth" :height="pieHeight"></vue-chart>
+                </v-card-media>
+              </v-flex>
+            </v-layout>
+          </v-container>
         </v-card>
-
       </v-flex>
     </v-layout>
   </v-container>
@@ -61,6 +67,8 @@
     },
     data () {
       return {
+        pieHeight: 10,
+        pieWidth: 10,
         expenseData: {
           datasets: [],
         },
@@ -82,7 +90,7 @@
           legend: {
             labels: {
               fontColor: '#47476b',
-              fontSize: 15,
+              fontSize: 11,
               fontStyle:'bold',
             }
           }
@@ -92,6 +100,8 @@
           '#4d94ff',
           '#00D8FF',
           '#41B883',
+          '#f49542',
+          '#8824c1',
         ],
       }
     },
@@ -114,7 +124,7 @@
           vm.contributeData.datasets[0].data = [];
           for(let idx in details){
             vm.contributeData.labels.push(details[idx]._id);
-            vm.contributeData.datasets[0].data.push(details[idx].total/100);
+            vm.contributeData.datasets[0].data.push((details[idx].total/100).toFixed(2));
           }
           console.log(vm.contributeData.datasets)
         }, response => {
@@ -134,7 +144,7 @@
           for(let idx in dist){
             let newItem = {};
             newItem.label = dist[idx]._id;
-            newItem.data = [dist[idx].amount, 0];
+            newItem.data = [(dist[idx].amount/100).toFixed(2), 0];
             newItem.backgroundColor = this.backgroundColor[idx];
             vm.expenseData.datasets.push(newItem);
           }
