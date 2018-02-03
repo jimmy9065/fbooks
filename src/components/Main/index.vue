@@ -47,7 +47,7 @@
                 <tr v-bind:id="props.item.idx" @click="showEditMenu($event)">
                 <td class="text-xs-center">{{ props.item.date }}</td>
                 <td class="text-xs-center">{{ props.item.owner }}</td>
-                <td class="text-xs-center">{{ (-props.item.amount/100).toFixed(2) }}</td>
+                <td class="text-xs-center">{{ (props.item.amount/100).toFixed(2) }}</td>
                 </tr>
               </template>
               <template slot="no-data">
@@ -138,11 +138,12 @@
                     :rules=titleRules></v-text-field>
                   <v-select
                     v-bind:items="categories"
-                    v-bind:value="submitCategory"
+                    v-model="submitCategory"
                     label="Category"
                     prepend-icon="format_list_bulleted"
                     ref="categoryText"
                     item-value="text"
+                    single-line
                     :rules=categoryRules></v-select>
                   <v-text-field 
                     label="Amount" 
@@ -324,7 +325,6 @@
         this.isPicking = false;
         this.submitDate = '';
         this.submitAmount = '';
-        this.submitCategory = "payment";
         this.resetForm();
         this.openPayDialog = true;
         this.disableDelete=true;
@@ -337,6 +337,7 @@
         this.submitDate = '';
         this.submitTitle = '';
         //this.submitCategory = "Others";
+        this.submitCategory = "";
         this.submitAmount = '';
         this.resetForm();
         this.openDialog = true;
@@ -376,7 +377,7 @@
 
         this.submitCategory = "payment";
         this.submitDate = this.payments[idx].date;
-        this.submitAmount = -(this.payments[idx].amount/100).toFixed(2);
+        this.submitAmount = (this.payments[idx].amount/100).toFixed(2);
         this.submitIdx = this.payments[idx].idx;
         this.openPayDialog = true;
       },
@@ -384,6 +385,7 @@
         let newItem = {};
         let command = null;
         let add = false;
+        let isPayment = false;
 
         if(!this.validateForm()){
           console.log('validation failed')
@@ -404,9 +406,11 @@
           console.log(this.submitCategory)
           console.log('temp newItem');
           console.log(newItem)
-          if(newItem.category == 'payment'){
+          //if(newItem.category == 'payment'){
+          if(this.dialogTitle.slice(4) == 'Payment'){
+            isPayment = true;
             console.log('payment');
-            newItem.amount = - newItem.amount;
+            newItem.category = 'payment'
             this.$store.dispatch('aInsertPayment').then(() => {
               this.openPayDialog = false;
             });
@@ -430,11 +434,12 @@
           let idx = this.submitIdx.slice(1);
           if(type == "p"){
             console.log(this.payments[idx])
+            isPayment = true;
             let recordId = this.payments[idx]._id;
             command = 'update/' + recordId;
             this.payments[idx].date = this.submitDate;
             this.payments[idx].category = 'payment';
-            this.payments[idx].amount = -Math.floor(this.submitAmount*100);
+            this.payments[idx].amount = Math.floor(this.submitAmount*100);
             this.$store.dispatch('aUpdatedPayment').then(() => {
               this.openPayDialog = false;
             });
@@ -467,7 +472,7 @@
         .then(response => {
           console.log('inserted/updated record/payment');
           if(add){
-            if(newItem.category == 'payment'){
+            if(isPayment){
               this.payments[this.payments.length-1]._id = response.body._id;
               vm.$store.dispatch("aInsertedPayment");
             }
@@ -480,7 +485,7 @@
             }
           }
           else{
-            if(newItem.category == 'payment')
+            if(isPayment)
               vm.$store.dispatch("aUpdatedPayment");
             else
               vm.$store.dispatch("aUpdatedRecord");
