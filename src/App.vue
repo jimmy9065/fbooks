@@ -61,7 +61,7 @@
     created(){
       this.checkLogin()
       document.title = 'Roommates Finance Book'
-      console.log("starting")
+      console.log("*****************starting********************")
     },
     data () {
       return {
@@ -75,7 +75,6 @@
       }
     },
     watch:{
-      "$route" : 'checkLogin'
     },
     methods:{
       checkLogin(){
