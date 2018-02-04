@@ -69,8 +69,8 @@
         //swipe: false,
         menuItems: [
           {icon: 'home', title:'Quick view', link: '/main'},
-          {icon: 'account_balance', title:' History ', link: '/main/history'},
-          {icon: 'equalizer', title:' Analysis ', link: '/main/analysis'},
+          {icon: 'account_balance', title:' History ', link: '/history'},
+          {icon: 'equalizer', title:' Analysis ', link: '/analysis'},
         ],
       }
     },
@@ -86,7 +86,9 @@
               this.$store.dispatch('submitLogin', {pass: true, username: user})
               console.log('username in cookid: ' + user)
               let currentPath = this.$store.state.route.path
+              console.log('currentPath:' + currentPath)
               if(currentPath == '/' || currentPath == '/login')
+                console.log('Here!')
                 this.$router.push('/login')
               return;
             }
@@ -123,7 +125,7 @@
     },
     computed: {
       banner: function(){
-        return "Welcome    " + this.$store.getters.getUsername;
+        return "Welcome " + this.$store.getters.getUsername;
       },
       isShow: function() {
         return this.$store.getters.loadLoginState;

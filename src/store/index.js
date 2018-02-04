@@ -16,8 +16,8 @@ export const store = new Vuex.Store({
     insertPayment: false,
     deleteRecord: false,
     deletePayment:false,
-    backendServer: 'http://localhost',
-    //backendServer: 'http://jimmy9065.ddns.net',
+    //backendServer: 'http://localhost',
+    backendServer: 'http://jimmy9065.ddns.net',
   },
   mutations: {
     updateLoginState(state, isLogin) {

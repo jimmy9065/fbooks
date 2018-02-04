@@ -26,15 +26,15 @@ export default new Router({
       component: main,
     },
     {
-      path: '/main/history',
+      path: '/history',
       name: 'History',
       component: history,
     },
     {
-      path: '/main/analysis',
+      path: '/analysis',
       name: 'Analysis',
       component: analysis,
     },
   ],
-  mode: 'hash'
+  mode: 'history'
 })
