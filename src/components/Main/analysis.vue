@@ -1,24 +1,17 @@
 <template>
-  <v-container fluid class='px-2 pt-0'>
+  <v-container fluid class='pt-2 pb-1 px-0'>
     <v-layout row wrap justify-center>
-      <v-flex xs12 lg10>
-        <v-progress-linear v-bind:indeterminate="true" v-bind:active="!HdataLoaded"></v-progress-linear>
-      </v-flex>
-    </v-layout>
-
-    <v-layout row wrap justify-center>
-      <v-flex xs12 lg7>
+      <v-flex lg7 md9 sm11 xs12>
         <v-card>
           <v-container class='px-1 py-1'>
-            <v-layout justify-center>
-              <v-flex xs11 lg7>
+            <v-layout row wrap justify-center>
+              <v-flex lg7 md9 sm11 xs11>
                 <v-card-title>
                   <strong class='title'>Individule Expense distribution</strong>
                 </v-card-title>
               </v-flex>
-            </v-layout>
-            <v-layout justify-center>
-              <v-flex xs14 lg8>
+
+              <v-flex lg8 md10 sm11 xs12>
                 <v-card-media>
                     <vue-chart type="bar" :data="expenseData" :options="myOption"></vue-chart>
                 </v-card-media>
@@ -35,18 +28,18 @@
     </v-layout>
 
     <v-layout row wrap justify-center>
-      <v-flex xs12 lg7>
+      <v-flex lg7 md9 sm11 xs12>
         <v-card>
           <v-container class='px-1 py-1'>
             <v-layout justify-center>
-              <v-flex xs12 lg7>
+              <v-flex lg7 md9 sm11 xs11>
                 <v-card-title>
                   <strong class='title'>Roommates Expense Contribution</strong>
                 </v-card-title>
               </v-flex>
             </v-layout>
             <v-layout justify-center>
-              <v-flex xs11 lg5>
+              <v-flex lg5 md7 sm8 xs10>
                 <v-card-media>
                   <vue-chart type="doughnut" :data="contributeData" :options="myOption" :width="pieWidth" :height="pieHeight"></vue-chart>
                 </v-card-media>

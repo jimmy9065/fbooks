@@ -1,231 +1,204 @@
 <template>
-  <v-container fill-height >
-    <v-layout column wrap justify-center>
-      <v-flex>
-        <v-card column >
-            <v-container class="pa-0" >
-            <v-card-title class="pt-1 pb-1" color="gray">
-            <strong>Expenses:</strong>
-            </v-card-title>
-            <v-data-table
-              v-bind:headers="expenseHeaders"
-              v-bind:items="expenses"
-              hide-actions
-              must-sort
-              v-bind:pagination.sync = "pagination"
-              class="elevation-1">
-              <template slot="items" slot-scope="props">
-                <tr v-bind:id="props.item.idx" @click="showEditMenu($event)">
-                <td class="text-xs-center">{{ props.item.date }}</td>
-                <td class="text-xs-center">{{ props.item.description }}</td>
-                <td class="text-xs-center">{{ props.item.category }}</td>
-                <td class="text-xs-center">{{ props.item.owner }}</td>
-                <td class="text-xs-center">{{ (props.item.amount/100).toFixed(2) }}</td>
-                </tr>
-              </template>
-              <template slot="no-data">
-                <v-alert :value="true" color="error" icon="warning">
-                  Sorry, nothing to display here :(
-                </v-alert>
-              </template>
-            </v-data-table>
+  <v-container fluid class='pt-2 pb-1 px-0'>
+    <v-layout row wrap justify-center>
+      <v-flex lg8 md9 sm9 xs12>
+        <v-card>
+          <v-container fluid class='pt-1 pb-5 px-0'>
+            <v-layout row wrap justify-center> 
+              <v-flex lg12 md12 sm12 xs12>
+                <v-card-title>
+                <strong>Expenses:</strong>
+                </v-card-title>
+              </v-flex>
 
-            <v-card-title class="pt-1 pb-1" color="gray">
-            <strong>Payments:</strong>
-            </v-card-title>
-            <v-data-table
-              v-bind:headers="paymentHeaders"
-              v-bind:items="payments"
-              hide-actions
-              must-sort
-              v-bind:pagination.sync = "pagination"
-              class="elevation-1">
-              <template slot="items" slot-scope="props">
-                <tr v-bind:id="props.item.idx" @click="showEditMenu($event)">
-                <td class="text-xs-center">{{ props.item.date }}</td>
-                <td class="text-xs-center">{{ props.item.owner }}</td>
-                <td class="text-xs-center">{{ (props.item.amount/100).toFixed(2) }}</td>
-                </tr>
-              </template>
-              <template slot="no-data">
-                <v-alert :value="true" color="error" icon="warning">
-                  Sorry, nothing to display here :(
-                </v-alert>
-              </template>
-            </v-data-table>
+              <v-flex lg12 md12 sm12 xs12>
+                <v-data-table
+                  v-bind:headers="expenseHeaders"
+                  v-bind:items="expenses"
+                  hide-actions
+                  must-sort
+                  v-bind:pagination.sync = "pagination"
+                  class="elevation-1">
+                  <template slot="items" slot-scope="props">
+                    <tr v-bind:id="props.item.idx" @click="showEditMenu($event)" xs12>
+                    <td class="text-xs-center">{{ props.item.date }}</td>
+                    <td class="text-xs-center">{{ props.item.description }}</td>
+                    <td class="text-xs-center">{{ props.item.category }}</td>
+                    <td class="text-xs-center">{{ props.item.owner }}</td>
+                    <td class="text-xs-center">{{ (props.item.amount/100).toFixed(2) }}</td>
+                    </tr>
+                  </template>
+                  <template slot="no-data">
+                    <v-alert :value="true" color="error" icon="warning">
+                      Sorry, nothing to display here :(
+                    </v-alert>
+                  </template>
+                </v-data-table>
+              </v-flex>
 
-              <v-footer class="pa-4" color="gray">
-                <v-tooltip bottom class="pa-0">
-                  <v-btn 
-                    icon 
-                    slot="activator" 
-                    @click="this.updateDataTable" 
-                    color="blue"
-                    v-bind:loading="!dataLoaded"
-                    dark
+              <v-flex lg12 md12 sm12 xs12>
+                <v-card-title class="py-2">
+                <strong>Payments:</strong>
+                </v-card-title>
+              </v-flex>
+
+              <v-flex lg12 md12 sm12 xs12>
+                <v-data-table
+                  v-bind:headers="paymentHeaders"
+                  v-bind:items="payments"
+                  hide-actions
+                  must-sort
+                  v-bind:pagination.sync = "pagination"
+                  class="elevation-1">
+                  <template slot="items" slot-scope="props">
+                    <tr v-bind:id="props.item.idx" @click="showEditMenu($event)">
+                    <td class="text-xs-center">{{ props.item.date }}</td>
+                    <td class="text-xs-center">{{ props.item.owner }}</td>
+                    <td class="text-xs-center">{{ (props.item.amount/100).toFixed(2) }}</td>
+                    </tr>
+                  </template>
+                  <template slot="no-data">
+                    <v-alert :value="true" color="error" icon="warning">
+                      Sorry, nothing to display here :(
+                    </v-alert>
+                  </template>
+                </v-data-table>
+              </v-flex>
+
+              <v-flex lg12 md12 sm12 xs12>
+                <v-footer class="pa-4" color="gray">
+                  <v-tooltip top class="pa-0">
+                    <v-btn 
+                      icon 
+                      slot="activator" 
+                      @click="this.updateDataTable" 
+                      color="blue"
+                      v-bind:loading="!dataLoaded"
+                      dark
+                      >
+                      <v-icon>cached</v-icon>
+                    </v-btn>
+                    <span>Refresh</span>
+                  </v-tooltip>
+                  <div>
+                    <h3>Total Due: ${{(due).toFixed(2)}}</h3>
+                  </div>
+                  <v-spacer></v-spacer>
+                  <v-speed-dial
+                    v-model="fab"
+                    :right=true
+                    :top = true
+                    direction="left"
+                    transition='slide-y-reverse-transition'
                     >
-                    <v-icon>cached</v-icon>
-                  </v-btn>
-                  <span>Refresh</span>
-                </v-tooltip>
-                <div>
-                  <h3>Total Due: ${{due}}</h3>
-                </div>
-                <v-spacer></v-spacer>
-                <v-speed-dial
-                  v-model="fab"
-                  :right=true
-                  :top = true
-                  direction="left"
-                  transition='slide-y-reverse-transition'
-                  >
-                    <v-btn
+                    <v-tooltip right class="pa-0" slot="activator">
+                      <v-btn
+                          slot="activator"
+                          color="red accent-2"
+                          dark
+                          fab
+                          v-model="fab"
+                        >
+                          <v-icon x-large>add</v-icon>
+                          <v-icon x-large>close</v-icon>
+                      </v-btn>
+                      <span>Add</span>
+                    </v-tooltip>
+                    <v-tooltip top class="pa-0">
+                      <v-btn
                         slot="activator"
-                        color="red accent-2"
+                        v-bind:disabled="!this.dataLoaded"
                         dark
                         fab
-                        v-model="fab"
+                        right
+                        small
+                        color="indigo"
+                        @click="showAddExpenseMenu"
                       >
-                        <v-icon x-large>add</v-icon>
-                        <v-icon x-large>close</v-icon>
+                        <v-icon>add_shopping_cart</v-icon>
                       </v-btn>
-      
-                    <v-btn
-                      v-bind:disabled="!this.dataLoaded"
-                      dark
-                      fab
-                      right
-                      small
-                      color="indigo"
-                      @click="showAddExpenseMenu"
-                    >
-                      <v-icon>add_shopping_cart</v-icon>
-                    </v-btn>
+                      <span>Buy</span>
+                    </v-tooltip>
+                    <v-tooltip top class="pa-0">
+                      <v-btn
+                        slot="activator"
+                        v-bind:disabled="!this.dataLoaded"
+                        dark
+                        fab
+                        right
+                        small
+                        color="green"
+                        @click="showAddPaymentMenu"
+                      >
+                        <v-icon>credit_card</v-icon>
+                      </v-btn>
+                      <span>Pay</span>
+                    </v-tooltip>
+                  </v-speed-dial>
+                </v-footer>
+                <v-divider></v-divider>
+              </v-flex>
 
-                    <v-btn
-                      v-bind:disabled="!this.dataLoaded"
-                      dark
-                      fab
-                      right
-                      small
-                      color="green"
-                      @click="showAddPaymentMenu"
-                    >
-                      <v-icon>credit_card</v-icon>
-                    </v-btn>
-                </v-speed-dial>
-              </v-footer>
-            </v-container>
+            </v-layout>
+          </v-container>
         </v-card>
       </v-flex>
+    </v-layout>
 
-      <v-dialog v-model="dialog" persistent max-width="350px">
-        <v-card>
-          <v-card-title class="pb-0 pt-3">
-            <h2>{{dialogTitle}}</h2>
-          </v-card-title>
-          <v-card-text v-if="!isPicking">
-            <v-container v-if="!isPicking" class="pt-0 pb-0" >
-                  <v-text-field 
-                    label="Title" 
-                    v-model="submitTitle" 
-                    prepend-icon="receipt"
-                    ref="titleText"
-                    :counter=25
-                    :rules=titleRules></v-text-field>
-                  <v-select
-                    v-bind:items="categories"
-                    v-model="submitCategory"
-                    label="Category"
-                    prepend-icon="format_list_bulleted"
-                    ref="categoryText"
-                    item-value="text"
-                    single-line
-                    :rules=categoryRules></v-select>
-                  <v-text-field 
-                    label="Amount" 
-                    v-model="submitAmount" 
-                    prepend-icon="attach_money"
-                    ref="amountText"
-                    :rules=amountRules></v-text-field>
-                  <v-text-field
-                    label="Date in M-D-Y format"
-                    v-model="submitDate"
-                    prepend-icon="event"
-                    @focus="pickingDate"
-                    readonly
-                    ref="dateText"
-                    :rules=dateRules></v-text-field>
-            </v-container>
-          </v-card-text>
-          <v-card-text v-else>
-            <v-date-picker v-model="choosingDate" v-on:input="chosenDate = formatDate($event)" no-title scrollable>
-            </v-date-picker>
-          </v-card-text>
-          <v-card-actions class='pa-0 pb-3'>
-            <v-container class='pa-0' v-if="!isPicking">
-              <v-layout >
-                <v-btn flat color="primary" 
-                  :disabled=disableDelete
-                  @click="submitDel">Delete</v-btn>
-                <v-spacer></v-spacer>
-                <v-btn flat color="primary" 
-                  @click="openDialog=false">Cancel</v-btn>
-                <v-btn flat color="primary"
-                  @click="submitForm"
-                  >Submit</v-btn>
-              </v-layout>
-            </v-container>
-            <v-container class='pa-0' v-else>
-              <v-layout >
-                <v-spacer></v-spacer>
-                <v-btn flat color="primary" 
-                  @click="isPicking=false">Cancel</v-btn>
-                <v-btn flat color="primary" 
-                  @click="submitDate=chosenDate;isPicking=false">Save</v-btn>
-              </v-layout>
-            </v-container>
-          </v-card-actions>
-        </v-card>
-      </v-dialog>
-
-      <v-dialog v-model="payDialog" persistent max-width="350px">
-        <v-card >
-          <v-card-title class="pb-0 pt-3">
-            <h2>{{dialogTitle}}</h2>
-          </v-card-title>
-
-          <v-card-text class='pa-1'>
-            <v-container v-if="!isPicking">
-            <v-text-field 
-              label="Amount" 
-              v-model="submitAmount" 
-              prepend-icon="attach_money"
-              ref="paymentAmountText"
-              :rules=amountRules></v-text-field>
-            <v-text-field
-              label="Date in M-D-Y format"
-              v-model="submitDate"
-              prepend-icon="event"
-              @focus="isPicking = true"
-              readonly
-              ref="paymentDateText"
-              :rules=dateRules></v-text-field>
-            </v-container>
-            <v-container class='pa-0' v-else>
-              <v-date-picker v-model="choosingDate" v-on:input="chosenDate = formatDate($event)" no-title scrollable></v-date-picker>
-            </v-container>
+    <v-layout>
+      <v-flex>
+        <v-dialog v-model="dialog" persistent max-width="350px">
+          <v-card>
+            <v-card-title class="pb-0 pt-3">
+              <h2>{{dialogTitle}}</h2>
+            </v-card-title>
+            <v-card-text v-if="!isPicking">
+              <v-container v-if="!isPicking" class="pt-0 pb-0" >
+                    <v-text-field 
+                      label="Title" 
+                      v-model="submitTitle" 
+                      prepend-icon="receipt"
+                      ref="titleText"
+                      :counter=25
+                      :rules=titleRules></v-text-field>
+                    <v-select
+                      v-bind:items="categories"
+                      v-model="submitCategory"
+                      label="Category"
+                      prepend-icon="format_list_bulleted"
+                      ref="categoryText"
+                      item-value="text"
+                      single-line
+                      :rules=categoryRules></v-select>
+                    <v-text-field 
+                      label="Amount" 
+                      v-model="submitAmount" 
+                      prepend-icon="attach_money"
+                      ref="amountText"
+                      :rules=amountRules></v-text-field>
+                    <v-text-field
+                      label="Date in M-D-Y format"
+                      v-model="submitDate"
+                      prepend-icon="event"
+                      @focus="pickingDate"
+                      readonly
+                      ref="dateText"
+                      :rules=dateRules></v-text-field>
+              </v-container>
+            </v-card-text>
+            <v-card-text v-else>
+              <v-date-picker v-model="choosingDate" v-on:input="chosenDate = formatDate($event)" no-title scrollable>
+              </v-date-picker>
             </v-card-text>
             <v-card-actions class='pa-0 pb-3'>
               <v-container class='pa-0' v-if="!isPicking">
                 <v-layout >
-                <v-btn flat color="primary" 
-                  :disabled=disableDelete
-                  @click="submitDel">Delete</v-btn>
+                  <v-btn flat color="primary" 
+                    :disabled=disableDelete
+                    @click="submitDel">Delete</v-btn>
                   <v-spacer></v-spacer>
                   <v-btn flat color="primary" 
-                    @click="openPayDialog=false"
-                    >Cancel</v-btn>
+                    @click="openDialog=false">Cancel</v-btn>
                   <v-btn flat color="primary"
                     @click="submitForm"
                     >Submit</v-btn>
@@ -241,10 +214,68 @@
                 </v-layout>
               </v-container>
             </v-card-actions>
-            
-        </v-card>
-      </v-dialog>
+          </v-card>
+        </v-dialog>
+      </v-flex>
+    </v-layout>
 
+    <v-layout>
+      <v-flex>
+        <v-dialog v-model="payDialog" persistent max-width="350px">
+          <v-card >
+            <v-card-title class="pb-0 pt-3">
+              <h2>{{dialogTitle}}</h2>
+            </v-card-title>
+
+            <v-card-text class='pa-1'>
+              <v-container v-if="!isPicking">
+              <v-text-field 
+                label="Amount" 
+                v-model="submitAmount" 
+                prepend-icon="attach_money"
+                ref="paymentAmountText"
+                :rules=amountRules></v-text-field>
+              <v-text-field
+                label="Date in M-D-Y format"
+                v-model="submitDate"
+                prepend-icon="event"
+                @focus="isPicking = true"
+                readonly
+                ref="paymentDateText"
+                :rules=dateRules></v-text-field>
+              </v-container>
+              <v-container class='pa-0' v-else>
+                <v-date-picker v-model="choosingDate" v-on:input="chosenDate = formatDate($event)" no-title scrollable></v-date-picker>
+              </v-container>
+              </v-card-text>
+              <v-card-actions class='pa-0 pb-3'>
+                <v-container class='pa-0' v-if="!isPicking">
+                  <v-layout >
+                  <v-btn flat color="primary" 
+                    :disabled=disableDelete
+                    @click="submitDel">Delete</v-btn>
+                    <v-spacer></v-spacer>
+                    <v-btn flat color="primary" 
+                      @click="openPayDialog=false"
+                      >Cancel</v-btn>
+                    <v-btn flat color="primary"
+                      @click="submitForm"
+                      >Submit</v-btn>
+                  </v-layout>
+                </v-container>
+                <v-container class='pa-0' v-else>
+                  <v-layout >
+                    <v-spacer></v-spacer>
+                    <v-btn flat color="primary" 
+                      @click="isPicking=false">Cancel</v-btn>
+                    <v-btn flat color="primary" 
+                      @click="submitDate=chosenDate;isPicking=false">Save</v-btn>
+                  </v-layout>
+                </v-container>
+              </v-card-actions>
+          </v-card>
+        </v-dialog>
+      </v-flex>
     </v-layout>
   </v-container>
 
@@ -665,7 +696,7 @@
         return this.openPayDialog || this.$store.getters.isSumbmittingPayment;
       },
       due: function() {
-        return (this.dueAmount>0 ? this.dueAmount: 0).toFixed(2);
+        return this.dueAmount>0 ? this.dueAmount: 0;
       }
     }
   }

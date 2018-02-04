@@ -29,9 +29,9 @@
       {{ swipeDirection }}
     </v-navigation-drawer>
 
-    <v-toolbar class="hidden-sm-and-down" extend 
+    <v-toolbar class="hidden-xs-and-down" extend 
       v-if="this.$store.getters.loadLoginState">
-      <v-toolbar-title>
+      <v-toolbar-title class="hidden-sm-and-down">
         <h3>{{banner}}</h3>
       </v-toolbar-title>
       <v-spacer></v-spacer>

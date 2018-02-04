@@ -1,67 +1,82 @@
 <template>
-  <v-container fill-height >
-    <v-layout column wrap justify-center>
-      <v-flex>
-        <v-card column >
+  <v-container fluid class='pt-2 pb-1 px-0'>
+    <v-layout row wrap justify-center>
+      <v-flex lg8 md9 sm9 xs12>
+        <v-card>
+          <v-container fluid class="pt-1 pb-5 px-0">
+            <v-layout row wrap justify-center>
+              <v-flex lg12 md12 sm12 xs12>
+                <v-card-title class="pt-1 pb-1">
+                <strong>Expenses:</strong>
+                </v-card-title>
+              </v-flex>
 
-            <v-container class="pa-0">
-              <v-card-title class="pt-1 pb-1" color="gray">
-              <strong>Expenses:</strong>
-              </v-card-title>
-              <v-data-table
-                id='expenseDT'
-                v-bind:headers="expenseHeaders"
-                v-bind:items="expenses"
-                class="elevation-1">
-                <template slot="items" slot-scope="props">
-                  <td class="text-xs-center">{{ props.item.date }}</td>
-                  <td class="text-xs-center">{{ props.item.description }}</td>
-                  <td class="text-xs-center">{{ props.item.category }}</td>
-                  <td class="text-xs-center">{{ props.item.owner }}</td>
-                  <td class="text-xs-center">{{ (props.item.amount/100).toFixed(2) }}</td>
-                </template>
-                <template slot="no-data">
-                  <v-alert :value="true" color="error" icon="warning">
-                    Sorry, nothing to display here :(
-                  </v-alert>
-                </template>
-              </v-data-table>
+              <v-flex lg12 md12 sm12 xs12>
+                <v-data-table
+                  id='expenseDT'
+                  v-bind:headers="expenseHeaders"
+                  v-bind:items="expenses"
+                  class="elevation-1">
+                  <template slot="items" slot-scope="props">
+                    <td class="text-xs-center">{{ props.item.date }}</td>
+                    <td class="text-xs-center">{{ props.item.description }}</td>
+                    <td class="text-xs-center">{{ props.item.category }}</td>
+                    <td class="text-xs-center">{{ props.item.owner }}</td>
+                    <td class="text-xs-center">{{ (props.item.amount/100).toFixed(2) }}</td>
+                  </template>
+                  <template slot="no-data">
+                    <v-alert :value="true" color="error" icon="warning">
+                      Sorry, nothing to display here :(
+                    </v-alert>
+                  </template>
+                </v-data-table>
+              </v-flex>
 
-              <v-card-title class="pt-1 pb-1" color="gray">
-              <strong>Payments:</strong>
-              </v-card-title>
-              <v-data-table
-                id='paymentDT'
-                v-bind:headers="paymentHeaders"
-                v-bind:items="payments"
-                class="elevation-1">
-                <template slot="items" slot-scope="props">
-                  <td class="text-xs-center">{{ props.item.date }}</td>
-                  <td class="text-xs-center">{{ props.item.owner }}</td>
-                  <td class="text-xs-center">{{ -(props.item.amount/100).toFixed(2) }}</td>
-                </template>
-                <template slot="no-data">
-                  <v-alert :value="true" color="error" icon="warning">
-                    Sorry, nothing to display here :(
-                  </v-alert>
-                </template>
-              </v-data-table>
+              <v-flex lg12 md12 sm12 xs12>
+                <v-card-title class="pt-1 pb-1" color="gray">
+                <strong>Payments:</strong>
+                </v-card-title>
+              </v-flex>
 
-              <v-footer class="pa-4" color="gray">
-                <v-tooltip bottom>
-                  <v-btn 
-                    icon 
-                    slot="activator" 
-                    @click="this.updateDataTable" 
-                    color="blue"
-                    v-bind:loading="!HdataLoaded"
-                    dark
-                    >
-                    <v-icon>cached</v-icon>
-                  </v-btn>
-                  <span>Refresh</span>
-                </v-tooltip>
-              </v-footer>
+              <v-flex lg12 md12 sm12 xs12>
+                <v-data-table
+                  id='paymentDT'
+                  v-bind:headers="paymentHeaders"
+                  v-bind:items="payments"
+                  class="elevation-1">
+                  <template slot="items" slot-scope="props">
+                    <td class="text-xs-center">{{ props.item.date }}</td>
+                    <td class="text-xs-center">{{ props.item.owner }}</td>
+                    <td class="text-xs-center">{{ -(props.item.amount/100).toFixed(2) }}</td>
+                  </template>
+                  <template slot="no-data">
+                    <v-alert :value="true" color="error" icon="warning">
+                      Sorry, nothing to display here :(
+                    </v-alert>
+                  </template>
+                </v-data-table>
+              </v-flex>
+
+              <v-flex lg12 md12 sm12 xs12>
+                <v-footer class="pa-4" color="gray">
+                  <v-tooltip bottom>
+                    <v-btn 
+                      icon 
+                      slot="activator" 
+                      @click="this.updateDataTable" 
+                      color="blue"
+                      v-bind:loading="!HdataLoaded"
+                      dark
+                      >
+                      <v-icon>cached</v-icon>
+                    </v-btn>
+                    <span>Refresh</span>
+                  </v-tooltip>
+                </v-footer>
+                <v-divider></v-divider>
+              </v-flex>
+
+            </v-layout>
           </v-container>
         </v-card>
       </v-flex>
