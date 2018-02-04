@@ -10,6 +10,9 @@ import UUID from 'vue-uuid'
 import 'vuetify/dist/vuetify.css'
 
 import {store} from './store'
+import {sync} from 'vuex-router-sync'
+
+const unsync = sync(store, router);
 
 Vue.use(Vuetify)
 Vue.use(VueResource);
