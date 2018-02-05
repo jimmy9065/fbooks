@@ -333,7 +333,7 @@
         payments : [
         ],
         categories: [
-          'Grocery', 'Tools', 'Rent', 'Utility', 'Dinner', 'Others'
+          'Grocery', 'Tools', 'Rent', 'Utility', 'Meals', 'Others'
         ],
         pagination: {
           sortBy: 'date',
