@@ -26,7 +26,6 @@
           <v-list-tile-content>{{ item.title }}</v-list-tile-content>
         </v-list-tile>
       </v-list>
-      {{ swipeDirection }}
     </v-navigation-drawer>
 
     <v-toolbar class="hidden-sm-and-down" extend 
