@@ -70,12 +70,14 @@
       sendAuth(){
         let CryptoJS = require('crypto-js');
         let base64url = require('base64url');
-        let encrypt = CryptoJS.AES.encrypt(this.password, 'abcd').toString(CryptoJS.enc.hex);
+        let guid = this.$uuid.v1();
+        let encrypt = CryptoJS.AES.encrypt(guid, this.password).toString(CryptoJS.enc.hex);
         let encoded = base64url.encode(encrypt);
 
         console.log('send password')
         this.$http.get(this.$store.state.backendServer + ':8081/api/login',
-                        {params: {username:this.username, password:encoded}})
+                          {params: {username:this.username, token:encoded},
+                            headers: {GUID:guid}})
         .then(response => {
           console.log('password is correct');
           console.log(this.username);
