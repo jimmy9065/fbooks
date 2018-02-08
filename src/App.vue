@@ -29,7 +29,7 @@
       {{ swipeDirection }}
     </v-navigation-drawer>
 
-    <v-toolbar class="hidden-xs-and-down" extend 
+    <v-toolbar class="hidden-sm-and-down" extend 
       v-if="this.$store.getters.loadLoginState">
       <v-toolbar-title class="hidden-sm-and-down">
         <h3>{{banner}}</h3>
@@ -61,7 +61,32 @@
     created(){
       document.title = 'Roommates Finance Book';
       console.log("*****************starting********************");
-      this.checkLogin();
+      if(this.$cookie.get('BOOKSUID')){
+        console.log('found cookie');
+        this.$http.get(this.$store.state.backendServer + ':8081/api/login/check',
+                        {credentials:true, timeout: 1000})
+        .then(response => {
+          if(response.ok){
+            console.log('cookie is correct');
+            console.log(response.body.username);
+            this.$store.dispatch('submitLogin', response.body)
+            .then(() => {
+              this.$router.push({path:'/main'});
+            });
+          }
+          else{
+            console.log('cookie is not valid')
+            this.$cookie.delete('BOOKSUID', {domain: '.jimmy9065.ddns.net'});
+            this.checkLogin();
+          }
+        })
+        .catch(() => {
+          console.log('check cookie failed');
+          this.$cookie.delete('BOOKSUID', {domain: '.jimmy9065.ddns.net'});
+          this.checkLogin();
+          this.conAlert = true;
+        })
+      }
     },
     data () {
       return {
@@ -74,32 +99,9 @@
         ],
       }
     },
-    watch:{
-    },
     methods:{
       checkLogin(){
         if(!this.$store.getters.loadLoginState){
-          if(this.$cookie.get('BOOKSUID')){
-            console.log('found cookie');
-            let cookie = this.$cookie.get('BOOKSUID');
-            if(/[a-zA-Z0-9]+@[a-zA-Z0-9\+\/]+/i.test(cookie)){ 
-              let user = /([a-zA-Z0-9]+)@/.exec(cookie)[1]
-              this.$store.dispatch('submitLogin', {pass: true, username: user})
-              console.log('username in cookid: ' + user)
-              let currentPath = this.$store.state.route.path
-              console.log('currentPath:' + currentPath)
-              if(currentPath == '/' || currentPath == '/login')
-                console.log('Here!')
-                this.$router.push('/main')
-              return;
-            }
-            else{
-              this.$cookie.delete('BOOKSUID');
-            }
-          }
-          else{
-            console.log('no cookie was found')
-          }
           this.$router.push('/login')
         }
         else{
@@ -122,7 +124,7 @@
         console.log('try to logout')
         this.$store.dispatch('submitLogout').then(() => {
           console.log('logout state changed successfully');
-          this.$cookie.delete('BOOKSUID');
+          this.$cookie.delete('BOOKSUID', {domain: '.jimmy9065.ddns.net'});
           this.$router.push('/login');
         })
       },
