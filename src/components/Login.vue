@@ -86,7 +86,7 @@
             {pass: response.body.pass, username: this.username})
             .then(()=>{
               console.log('get here');
-              this.$cookie.set('BOOKSUID', response.body.cookie, {expires:1});
+              this.$cookie.set('BOOKSUID', response.body.cookie, {expires:1, domain:'.jimmy9065.ddns.net'});
               this.$router.push({path:'/main'});
             })
             .catch(() => {
