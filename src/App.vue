@@ -59,9 +59,9 @@
 <script>
   export default {
     created(){
-      this.checkLogin()
-      document.title = 'Roommates Finance Book'
-      console.log("*****************starting********************")
+      document.title = 'Roommates Finance Book';
+      console.log("*****************starting********************");
+      this.checkLogin();
     },
     data () {
       return {
@@ -80,6 +80,7 @@
       checkLogin(){
         if(!this.$store.getters.loadLoginState){
           if(this.$cookie.get('BOOKSUID')){
+            console.log('found cookie');
             let cookie = this.$cookie.get('BOOKSUID');
             if(/[a-zA-Z0-9]+@[a-zA-Z0-9\+\/]+/i.test(cookie)){ 
               let user = /([a-zA-Z0-9]+)@/.exec(cookie)[1]
@@ -89,12 +90,15 @@
               console.log('currentPath:' + currentPath)
               if(currentPath == '/' || currentPath == '/login')
                 console.log('Here!')
-                this.$router.push('/login')
+                this.$router.push('/main')
               return;
             }
             else{
               this.$cookie.delete('BOOKSUID');
             }
+          }
+          else{
+            console.log('no cookie was found')
           }
           this.$router.push('/login')
         }
