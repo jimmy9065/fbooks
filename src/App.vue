@@ -86,6 +86,8 @@
           this.conAlert = true;
         })
       }
+      else
+        this.checkLogin();
     },
     data () {
       return {
